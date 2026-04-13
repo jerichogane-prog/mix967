@@ -339,11 +339,13 @@ export function sanitizeContent(
   content = content.replace(/<p>\s*<\/p>/g, "");
   content = content.replace(/<p>\s*<br\s*\/?>\s*<\/p>/g, "");
 
-  // Fix internal links: strip WP domains and rewrite /show/ → /shows/
+  // Fix internal links: strip WP domains and rewrite show → /shows/
   content = content.replace(/href="http:\/\/mix-967\.local/g, `href="`);
   content = content.replace(/href="https?:\/\/mix967fm\.com/g, `href="`);
   content = content.replace(new RegExp(`href="${wpUrl.replace(/\/$/, "")}`, "g"), `href="`);
   content = content.replace(/href="\/show\//g, 'href="/shows/');
+  // Catch relative links: href="show/slug" (no leading slash) → absolute /shows/slug
+  content = content.replace(/href="show\//g, 'href="/shows/');
 
   return content;
 }
