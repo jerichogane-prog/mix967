@@ -106,35 +106,9 @@ function FacebookFeed() {
   );
 }
 
-/* ---------- Twitter/X — iframe with follow-card fallback ---------- */
+/* ---------- Twitter/X — follow card (no embed, avoids rate limits) ---------- */
 
 function TwitterFeed() {
-  const iframeRef = useRef<HTMLIFrameElement>(null);
-  const [status, setStatus] = useState<"loading" | "ready" | "failed">("loading");
-
-  useEffect(() => {
-    // The iframe always fires onLoad (even for error pages).
-    // After it loads, probe whether the body is tiny (error/rate-limit page)
-    // by giving X a moment to render then checking iframe height.
-    // Cross-origin prevents reading innerHTML, so we use a timeout fallback:
-    // if the iframe loaded but looks like an error page, show the follow card.
-    const timeout = setTimeout(() => {
-      if (status === "loading") setStatus("failed");
-    }, 8000);
-
-    return () => clearTimeout(timeout);
-  }, [status]);
-
-  const handleLoad = () => {
-    // iframe loaded — give it a short moment for X to render content,
-    // then check if the iframe body has actual timeline content.
-    // Since it's cross-origin we can't inspect, so we trust onLoad
-    // and show the iframe. If X returned an error page, the user sees
-    // a styled error inside the iframe which is acceptable, but we also
-    // set a generous timeout above as a safety net.
-    setStatus("ready");
-  };
-
   return (
     <div
       className="overflow-hidden rounded-xl border"
@@ -157,33 +131,7 @@ function TwitterFeed() {
           X / Twitter
         </h3>
       </div>
-
-      {/* Loading skeleton */}
-      {status === "loading" && (
-        <div
-          className="flex min-h-[400px] items-center justify-center"
-          style={{ background: "var(--color-surface-raised)" }}
-        >
-          <FeedSkeleton platform="X" />
-        </div>
-      )}
-
-      {/* Iframe embed — attempt the syndication feed */}
-      <div className={status === "ready" ? "overflow-hidden" : "h-0 overflow-hidden"}>
-        <iframe
-          ref={iframeRef}
-          src={`https://syndication.twitter.com/srv/timeline-profile/screen-name/${TWITTER_HANDLE}`}
-          title={`@${TWITTER_HANDLE} on X`}
-          height="400"
-          className="w-full border-none"
-          style={{ colorScheme: "light" }}
-          onLoad={handleLoad}
-          onError={() => setStatus("failed")}
-        />
-      </div>
-
-      {/* Follow card fallback — shown when embed fails or times out */}
-      {status === "failed" && <XFollowCard />}
+      <XFollowCard />
     </div>
   );
 }
