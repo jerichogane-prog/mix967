@@ -14,9 +14,26 @@ export async function generateMetadata({ params }: BlogPostPageProps): Promise<M
   const post = await getPostBySlug(slug);
   if (!post) return { title: "Post Not Found" };
 
+  const description = stripHtml(post.excerpt).slice(0, 160);
+  const ogImage = wpImageUrl(post.featuredImage?.node.sourceUrl);
+
   return {
     title: post.title,
-    description: stripHtml(post.excerpt).slice(0, 160),
+    description,
+    openGraph: {
+      title: post.title,
+      description,
+      type: "article",
+      publishedTime: post.date,
+      authors: [post.author.node.name],
+      ...(ogImage ? { images: [{ url: ogImage }] } : {}),
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: post.title,
+      description,
+      ...(ogImage ? { images: [ogImage] } : {}),
+    },
   };
 }
 
@@ -29,7 +46,36 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
   const category = post.categories.nodes[0];
   const imgUrl = wpImageUrl(post.featuredImage?.node.sourceUrl);
 
+  const articleJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    headline: post.title,
+    description: stripHtml(post.excerpt).slice(0, 160),
+    datePublished: post.date,
+    author: { "@type": "Person", name: post.author.node.name },
+    publisher: {
+      "@type": "Organization",
+      name: "Mix 96.7 FM",
+      logo: { "@type": "ImageObject", url: "https://mix967fm.com/wp-content/uploads/2023/04/Logo@2x-768x285-1.png" },
+    },
+    ...(imgUrl ? { image: imgUrl } : {}),
+    mainEntityOfPage: `https://mix967fm.com/blog/${slug}`,
+  };
+
+  const breadcrumbJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      { "@type": "ListItem", position: 1, name: "Home", item: "https://mix967fm.com" },
+      { "@type": "ListItem", position: 2, name: "News", item: "https://mix967fm.com/blog" },
+      { "@type": "ListItem", position: 3, name: post.title },
+    ],
+  };
+
   return (
+    <>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(articleJsonLd) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }} />
     <div className="mx-auto max-w-[var(--content-wide)] px-4 py-8 sm:px-6">
       <div className="flex flex-col gap-8 lg:flex-row">
         {/* Article */}
@@ -119,5 +165,6 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
         <Sidebar />
       </div>
     </div>
+    </>
   );
 }

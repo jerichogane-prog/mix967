@@ -1,0 +1,10 @@
+User-agent: *
+Allow: /
+
+# Block internal/utility paths
+Disallow: /api/
+Disallow: /thank-you
+Disallow: /_next/
+
+# Sitemap
+Sitemap: https://mix967fm.com/sitemap.xml

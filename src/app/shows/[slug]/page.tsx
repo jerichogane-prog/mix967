@@ -14,9 +14,17 @@ export async function generateMetadata({ params }: ShowPageProps): Promise<Metad
   const { slug } = await params;
   const show = await getShowBySlug(slug);
   if (!show) return { title: "Show Not Found" };
+  const description = show.excerpt ? stripHtml(show.excerpt).slice(0, 160) : `Listen to ${show.title} on Mix 96.7 FM`;
+  const ogImage = wpImageUrl(show.showAvatar || show.featuredImage?.node.sourceUrl);
+
   return {
     title: show.title,
-    description: show.excerpt ? stripHtml(show.excerpt).slice(0, 160) : `Listen to ${show.title} on Mix 96.7 FM`,
+    description,
+    openGraph: {
+      title: `${show.title} | Mix 96.7 FM`,
+      description,
+      ...(ogImage ? { images: [{ url: ogImage }] } : {}),
+    },
   };
 }
 

@@ -33,6 +33,10 @@ export default async function Home() {
       <div className="flex flex-col gap-8 py-5 pb-12 lg:flex-row">
         {/* ======= MAIN CONTENT ======= */}
         <div className="min-w-0 flex-1">
+          {/* SEO H1 — visually hidden but present for crawlers */}
+          <h1 className="sr-only">
+            Mix 96.7 FM — Northeast Nevada&apos;s #1 Hit Music Station
+          </h1>
 
           {/* Featured Slider — inside main column */}
           <div className="mb-6">

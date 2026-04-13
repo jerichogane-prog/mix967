@@ -81,6 +81,41 @@ export default async function RootLayout({
       className={`${display.variable} ${body.variable} ${mono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col font-[family-name:var(--font-body)]">
+        {/* Organization JSON-LD */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "RadioStation",
+              name: "Mix 96.7 FM",
+              alternateName: "KHIX",
+              url: "https://mix967fm.com",
+              logo: "https://mix967fm.com/wp-content/uploads/2023/04/Logo@2x-768x285-1.png",
+              description:
+                "Northeast Nevada's #1 Hit Music Station. Broadcasting 24/7 with the best mix of today's hits.",
+              telephone: "+17757771196",
+              email: "info@global1media.com",
+              address: {
+                "@type": "PostalAddress",
+                addressLocality: "Elko",
+                addressRegion: "NV",
+                addressCountry: "US",
+              },
+              parentOrganization: {
+                "@type": "Organization",
+                name: "Global One Media Inc.",
+                url: "https://global1media.com",
+              },
+              sameAs: [
+                "https://www.facebook.com/elkosmix96.7/",
+                "https://twitter.com/elkosmix967",
+                "https://www.instagram.com/elkosmix96.7/",
+                "https://www.tiktok.com/@elkosmix96.7",
+              ],
+            }),
+          }}
+        />
         <AnnouncementBar />
         <Header menuItems={menuItems} />
         <main className="flex-1 pb-16">{children}</main>

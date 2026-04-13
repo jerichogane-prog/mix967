@@ -13,9 +13,17 @@ export async function generateMetadata({ params }: EventPageProps): Promise<Meta
   const { slug } = await params;
   const event = await getEventBySlug(slug);
   if (!event) return { title: "Event Not Found" };
+  const description = event.excerpt ? stripHtml(event.excerpt).slice(0, 160) : `${event.title} — Mix 96.7 FM`;
+  const ogImage = wpImageUrl(event.featuredImage?.node.sourceUrl);
+
   return {
     title: event.title,
-    description: event.excerpt ? stripHtml(event.excerpt).slice(0, 160) : `${event.title} — Mix 96.7 FM`,
+    description,
+    openGraph: {
+      title: `${event.title} | Mix 96.7 FM`,
+      description,
+      ...(ogImage ? { images: [{ url: ogImage }] } : {}),
+    },
   };
 }
 
