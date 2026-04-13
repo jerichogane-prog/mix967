@@ -59,7 +59,7 @@ export default function Header({ menuItems }: HeaderProps) {
           borderColor: "oklch(0% 0 0 / 0.06)",
         }}
       >
-        <div className="mx-auto flex h-20 max-w-[var(--content-wide)] items-center justify-between px-4 sm:px-6 lg:h-24">
+        <div className="mx-auto flex h-20 max-w-[var(--content-wide)] items-center justify-between px-4 sm:px-6 lg:h-28">
           {/* Logo + Tagline */}
           <Link
             href="/"
@@ -70,7 +70,7 @@ export default function Header({ menuItems }: HeaderProps) {
               alt="Mix 96.7 FM"
               width={768}
               height={285}
-              className="h-14 w-auto lg:h-[4.5rem]"
+              className="h-14 w-auto lg:h-[5.5rem]"
               priority
             />
             <span
@@ -83,6 +83,30 @@ export default function Header({ menuItems }: HeaderProps) {
 
           {/* Right side */}
           <div className="flex items-center gap-3">
+            {/* Download App buttons — desktop only */}
+            <div className="hidden items-center gap-2 lg:flex">
+              <a
+                href="https://apps.apple.com/us/app/global-one-media/id6446038326?uo=2"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1.5 rounded-lg border px-3 py-2 text-xs font-medium transition-colors hover:bg-black/[0.04]"
+                style={{ borderColor: "oklch(0% 0 0 / 0.1)", color: "var(--color-text-secondary)" }}
+              >
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z" /></svg>
+                App Store
+              </a>
+              <a
+                href="https://play.google.com/store/apps/details?id=com.globalonemedia1.app&pli=1"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1.5 rounded-lg border px-3 py-2 text-xs font-medium transition-colors hover:bg-black/[0.04]"
+                style={{ borderColor: "oklch(0% 0 0 / 0.1)", color: "var(--color-text-secondary)" }}
+              >
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M3.18 23.49a2.75 2.75 0 01-.87-2.07V2.58c0-.73.3-1.44.86-2.08L12 9.31 3.18 23.49zM17.45 14l-3.83-3.83 3.83-3.83L21 8.36c1.08.63 1.08 1.66 0 2.28L17.45 14zM4 24l8.83-5.17L8.5 14.5 4 24zM4 0l4.5 9.5 4.33-4.33L4 0z" /></svg>
+                Google Play
+              </a>
+            </div>
+
             {/* Listen Live button */}
             <button
               className="inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-bold transition-transform hover:scale-105 active:scale-95 sm:px-5"
@@ -220,6 +244,31 @@ export default function Header({ menuItems }: HeaderProps) {
               <MobileNavItem key={item.label} item={item} pathname={pathname} onClose={() => setMobileOpen(false)} />
             ))}
           </ul>
+
+          {/* Mobile app download links */}
+          <div className="flex items-center gap-2 border-t px-4 py-3" style={{ borderColor: "oklch(0% 0 0 / 0.06)" }}>
+            <span className="text-xs font-medium" style={{ color: "var(--color-text-muted)" }}>Get the app:</span>
+            <a
+              href="https://apps.apple.com/us/app/global-one-media/id6446038326?uo=2"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1.5 rounded-lg border px-3 py-2 text-xs font-medium transition-colors hover:bg-black/[0.04]"
+              style={{ borderColor: "oklch(0% 0 0 / 0.1)", color: "var(--color-text-secondary)" }}
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z" /></svg>
+              App Store
+            </a>
+            <a
+              href="https://play.google.com/store/apps/details?id=com.globalonemedia1.app&pli=1"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1.5 rounded-lg border px-3 py-2 text-xs font-medium transition-colors hover:bg-black/[0.04]"
+              style={{ borderColor: "oklch(0% 0 0 / 0.1)", color: "var(--color-text-secondary)" }}
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M3.18 23.49a2.75 2.75 0 01-.87-2.07V2.58c0-.73.3-1.44.86-2.08L12 9.31 3.18 23.49zM17.45 14l-3.83-3.83 3.83-3.83L21 8.36c1.08.63 1.08 1.66 0 2.28L17.45 14zM4 24l8.83-5.17L8.5 14.5 4 24zM4 0l4.5 9.5 4.33-4.33L4 0z" /></svg>
+              Google Play
+            </a>
+          </div>
         </div>
       )}
     </header>

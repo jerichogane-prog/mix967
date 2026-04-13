@@ -12,6 +12,7 @@ interface WPPageProps {
 const RESERVED_SLUGS = new Set([
   "blog", "shows", "events", "schedule", "api",
   "contests", "vip-listener", "advertise", "contact-us", "thank-you",
+  "mix-crew",
 ]);
 
 /* Game pages render full-width with no sidebar */

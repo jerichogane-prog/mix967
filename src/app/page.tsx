@@ -92,8 +92,8 @@ export default async function Home() {
           {/* Shows Section */}
           {shows.length > 0 && (
             <section className="mt-10">
-              <SectionHeader title="Our DJs" href="/shows" />
-              <div className="grid gap-4 sm:grid-cols-3">
+              <SectionHeader title="Mix Crew" href="/mix-crew" />
+              <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4">
                 {shows.slice(0, 6).map((show) => (
                   <ShowCard key={show.id} show={show} />
                 ))}
@@ -337,17 +337,19 @@ function ShowCard({ show }: { show: WPShow }) {
             alt={show.title}
             fill
             className="object-cover transition-transform duration-300 group-hover:scale-[1.03]"
-            sizes="(max-width: 768px) 50vw, 220px"
+            sizes="(max-width: 640px) 45vw, (max-width: 768px) 30vw, 220px"
           />
         </div>
       ) : (
         <div
-          className="aspect-square"
-          style={{ background: "oklch(92% 0.02 250 / 0.3)" }}
-        />
+          className="flex aspect-square items-center justify-center text-2xl font-bold"
+          style={{ background: "var(--color-surface-sunken)", color: "var(--color-text-muted)" }}
+        >
+          {show.title.charAt(0)}
+        </div>
       )}
-      <div className="p-3">
-        <h3 className="font-[family-name:var(--font-display)] text-sm font-bold tracking-tight">
+      <div className="p-2 sm:p-3">
+        <h3 className="font-[family-name:var(--font-display)] text-xs font-bold tracking-tight sm:text-sm">
           {show.title}
         </h3>
       </div>
