@@ -90,6 +90,26 @@ export default async function Home() {
             <AdSlot ads={bannerAds} label="Advertisement" />
           </div>
 
+          {/* Featured Video */}
+          <section className="mt-10">
+            <SectionHeader title="Watch" />
+            <div
+              className="overflow-hidden rounded-xl border"
+              style={{ borderColor: "oklch(0% 0 0 / 0.06)" }}
+            >
+              <div className="relative aspect-video">
+                <iframe
+                  src="https://www.youtube.com/embed/uh95BL-Gi2o"
+                  title="Mix 96.7 FM Video"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                  className="absolute inset-0 h-full w-full border-none"
+                  loading="lazy"
+                />
+              </div>
+            </div>
+          </section>
+
           {/* Shows Section */}
           {shows.length > 0 && (
             <section className="mt-10">

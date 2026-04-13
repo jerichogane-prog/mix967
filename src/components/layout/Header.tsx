@@ -10,7 +10,31 @@ import { usePathname, useRouter } from "next/navigation";
    via WPGraphQL, with dropdown submenus.
    ============================================ */
 
+import { HeaderWeatherBadge } from "@/components/weather/WeatherWidget";
 import type { NavItem } from "@/lib/api";
+
+const SOCIALS = [
+  {
+    label: "Facebook",
+    href: "https://www.facebook.com/elkosmix96.7/",
+    icon: <path d="M18 2h-3a5 5 0 00-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 011-1h3z" />,
+  },
+  {
+    label: "X",
+    href: "https://twitter.com/elkosmix967",
+    icon: <path d="M4 4l6.5 8L4 20h2l5.25-6.5L15 20h5l-6.85-8.4L19.5 4h-2l-4.9 6L8.5 4H4z" />,
+  },
+  {
+    label: "Instagram",
+    href: "https://www.instagram.com/elkosmix96.7/",
+    icon: <><rect x="2" y="2" width="20" height="20" rx="5" /><circle cx="12" cy="12" r="5" /><circle cx="17.5" cy="6.5" r="1.5" /></>,
+  },
+  {
+    label: "TikTok",
+    href: "https://www.tiktok.com/@elkosmix96.7",
+    icon: <path d="M9 12a4 4 0 104 4V4a5 5 0 005 5" />,
+  },
+];
 
 interface HeaderProps {
   menuItems?: NavItem[];
@@ -83,6 +107,28 @@ export default function Header({ menuItems }: HeaderProps) {
 
           {/* Right side */}
           <div className="flex items-center gap-3">
+            {/* Weather badge — desktop only */}
+            <HeaderWeatherBadge />
+
+            {/* Social icons — desktop only */}
+            <div className="hidden items-center gap-1 lg:flex">
+              {SOCIALS.map((s) => (
+                <a
+                  key={s.label}
+                  href={s.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={s.label}
+                  className="flex h-8 w-8 items-center justify-center rounded-lg transition-colors hover:bg-black/[0.04]"
+                  style={{ color: "var(--color-text-muted)" }}
+                >
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    {s.icon}
+                  </svg>
+                </a>
+              ))}
+            </div>
+
             {/* Download App buttons — desktop only */}
             <div className="hidden items-center gap-2 lg:flex">
               <a
@@ -268,6 +314,26 @@ export default function Header({ menuItems }: HeaderProps) {
               <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M3.18 23.49a2.75 2.75 0 01-.87-2.07V2.58c0-.73.3-1.44.86-2.08L12 9.31 3.18 23.49zM17.45 14l-3.83-3.83 3.83-3.83L21 8.36c1.08.63 1.08 1.66 0 2.28L17.45 14zM4 24l8.83-5.17L8.5 14.5 4 24zM4 0l4.5 9.5 4.33-4.33L4 0z" /></svg>
               Google Play
             </a>
+          </div>
+
+          {/* Mobile social icons */}
+          <div className="flex items-center gap-1 border-t px-4 py-3" style={{ borderColor: "oklch(0% 0 0 / 0.06)" }}>
+            <span className="mr-2 text-xs font-medium" style={{ color: "var(--color-text-muted)" }}>Follow us:</span>
+            {SOCIALS.map((s) => (
+              <a
+                key={s.label}
+                href={s.href}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label={s.label}
+                className="flex h-9 w-9 items-center justify-center rounded-lg transition-colors hover:bg-black/[0.04]"
+                style={{ color: "var(--color-text-muted)" }}
+              >
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  {s.icon}
+                </svg>
+              </a>
+            ))}
           </div>
         </div>
       )}
