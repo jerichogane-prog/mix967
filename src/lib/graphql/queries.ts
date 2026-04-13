@@ -339,6 +339,25 @@ export const GET_POST_COUNT = `
   }
 `;
 
+/* ---------- Menus ---------- */
+
+export const GET_MENU = `
+  query GetMenu($slug: ID!) {
+    menu(id: $slug, idType: SLUG) {
+      menuItems(first: 100) {
+        nodes {
+          id
+          label
+          url
+          target
+          parentId
+          path
+        }
+      }
+    }
+  }
+`;
+
 /* ---------- Categories ---------- */
 
 export const GET_CATEGORIES = `

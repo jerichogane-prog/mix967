@@ -16,6 +16,7 @@ import {
   GET_AD_GROUP,
   SEARCH_POSTS,
   GET_POST_COUNT,
+  GET_MENU,
 } from "./graphql/queries";
 import type {
   PostsResponse,
@@ -28,11 +29,13 @@ import type {
   PageResponse,
   SliderResponse,
   AdGroupResponse,
+  MenuResponse,
   WPPost,
   WPShow,
   WPEvent,
   WPPage,
   WPPageInfo,
+  WPMenuItem,
   SliderSlide,
   AdvancedAd,
 } from "@/types";
@@ -202,6 +205,78 @@ export async function getAdGroup(group: string): Promise<AdvancedAd[]> {
     { revalidate: 0 }
   );
   return data?.adGroup ?? [];
+}
+
+/* ---------- Menus ---------- */
+
+export interface NavItem {
+  id: string;
+  label: string;
+  href: string;
+  external: boolean;
+  children: NavItem[];
+}
+
+export async function getMenu(slug: string): Promise<NavItem[]> {
+  const data = await fetchGraphQLSafe<MenuResponse>(
+    GET_MENU,
+    { slug },
+    { revalidate: 0 }
+  );
+
+  const items = data?.menu?.menuItems.nodes ?? [];
+  return buildMenuTree(items);
+}
+
+function buildMenuTree(items: WPMenuItem[]): NavItem[] {
+  const wpUrl = process.env.NEXT_PUBLIC_WORDPRESS_URL ?? "http://localhost:10003";
+  const wpDomain = "http://mix-967.local";
+
+  const toNavItem = (item: WPMenuItem): NavItem => {
+    let href = item.url || item.path || "#";
+
+    // Rewrite WP internal URLs to Next.js routes
+    href = href.replace(wpDomain, "").replace(wpUrl, "");
+
+    // Fix known path patterns
+    href = href.replace(/\/show\//, "/shows/");
+    href = href.replace(/\/category\/.*/, "/blog");
+    href = href.replace(/\/$/, "") || "/";
+
+    // Remove query strings from WP draft-style URLs
+    if (href.includes("?post_type=")) {
+      href = "#";
+    }
+
+    const isExternal = item.url?.startsWith("http") && !item.url.includes("mix-967.local") && !item.url.includes(wpUrl);
+
+    return {
+      id: item.id,
+      label: item.label,
+      href,
+      external: isExternal,
+      children: [],
+    };
+  };
+
+  // Build parent → children map
+  const nodeMap = new Map<string, NavItem>();
+  const roots: NavItem[] = [];
+
+  for (const item of items) {
+    nodeMap.set(item.id, toNavItem(item));
+  }
+
+  for (const item of items) {
+    const navItem = nodeMap.get(item.id)!;
+    if (item.parentId && nodeMap.has(item.parentId)) {
+      nodeMap.get(item.parentId)!.children.push(navItem);
+    } else {
+      roots.push(navItem);
+    }
+  }
+
+  return roots;
 }
 
 /* ---------- Helpers ---------- */

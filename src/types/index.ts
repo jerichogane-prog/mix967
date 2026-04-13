@@ -126,6 +126,21 @@ export interface AdvancedAd {
   height: number;
 }
 
+/* ---------- Menus ---------- */
+
+export interface WPMenuItem {
+  id: string;
+  label: string;
+  url: string;
+  target: string | null;
+  parentId: string | null;
+  path: string;
+}
+
+export interface MenuResponse {
+  menu: { menuItems: { nodes: WPMenuItem[] } } | null;
+}
+
 /* ---------- GraphQL response wrappers ---------- */
 
 export interface WPPageInfo {

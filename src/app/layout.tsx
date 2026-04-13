@@ -4,6 +4,7 @@ import AnnouncementBar from "@/components/layout/AnnouncementBar";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import RadioPlayer from "@/components/radio-player/RadioPlayer";
+import { getMenu } from "@/lib/api";
 import "./globals.css";
 
 const display = Space_Grotesk({
@@ -35,11 +36,13 @@ export const metadata: Metadata = {
   description: "Your favorite radio station — live music, shows, and events.",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const menuItems = await getMenu("header-menu");
+
   return (
     <html
       lang="en"
@@ -47,7 +50,7 @@ export default function RootLayout({
     >
       <body className="min-h-full flex flex-col font-[family-name:var(--font-body)]">
         <AnnouncementBar />
-        <Header />
+        <Header menuItems={menuItems} />
         <main className="flex-1 pb-16">{children}</main>
         <Footer />
         <RadioPlayer />

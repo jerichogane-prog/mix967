@@ -6,88 +6,26 @@ import { useState, useRef, useEffect } from "react";
 import { usePathname, useRouter } from "next/navigation";
 
 /* ============================================
-   Header — matches WordPress header menu
-   structure exactly, with dropdown submenus.
+   Header — dynamic menu pulled from WordPress
+   via WPGraphQL, with dropdown submenus.
    ============================================ */
 
-interface NavItem {
-  label: string;
-  href: string;
-  external?: boolean;
-  children?: NavItem[];
+import type { NavItem } from "@/lib/api";
+
+interface HeaderProps {
+  menuItems?: NavItem[];
 }
 
-const PRIMARY_NAV: NavItem[] = [
-  { label: "Home", href: "/" },
-  { label: "News", href: "/blog" },
-  {
-    label: "Mix Crew",
-    href: "/shows",
-    children: [
-      { label: "Sandy Beeler", href: "/shows/sandy-beeler" },
-      { label: "Jen Austin", href: "/shows/jen-austin" },
-      { label: "Jamie Roberts", href: "/shows/jamie-roberts" },
-      { label: "Izaak Freeman", href: "/shows/izaak-freeman" },
-      { label: "American Top 40 with Ryan Seacrest", href: "/shows/american-top-40-with-ryan-seacrest" },
-    ],
-  },
-  { label: "Contests", href: "/contests" },
-  { label: "VIP Listener", href: "/vip-listener" },
-  {
-    label: "Events",
-    href: "/events",
-    children: [
-      { label: "What's Happening", href: "/events" },
-      { label: "Health and Fitness 2025", href: "https://elkohealth.com/", external: true },
-      { label: "Elko Family Fun Day", href: "https://elkofamilyfun.com/", external: true },
-    ],
-  },
-  {
-    label: "Connect",
-    href: "#",
-    children: [
-      { label: "Advertise", href: "/advertise" },
-      { label: "Careers", href: "https://global1media.com/index.php/career-opportunities/", external: true },
-      { label: "Contact Us", href: "/contact-us" },
-    ],
-  },
-  {
-    label: "Podcast",
-    href: "#",
-    children: [
-      { label: "Backstage with Sandy Beeler", href: "https://elkobackstage.com/", external: true },
-      { label: "Community Conversation", href: "https://elkoconversation.com/", external: true },
-      { label: "Nevada Now with Curtis Calder", href: "https://nevadacast.com/", external: true },
-      { label: "Tips to Happiness with EC Stilson", href: "https://ecstilson.global1media.com/", external: true },
-    ],
-  },
-  {
-    label: "Channels",
-    href: "#",
-    children: [
-      { label: "Radio Santa", href: "https://radio-santa.com/", external: true },
-      { label: 'Ron Ananian "Car Doctor Show"', href: "https://cardoctorshow.com/", external: true },
-    ],
-  },
-  {
-    label: "Games",
-    href: "#",
-    children: [
-      { label: "Solitaire", href: "/solitaire" },
-      { label: "Mahjong", href: "/mahjong" },
-      { label: "Galaga", href: "/galaga" },
-      { label: "Pong", href: "/pong" },
-      { label: "War Brokers", href: "/wordle" },
-      { label: "Wings.io", href: "/wings-io" },
-      { label: "Qbert", href: "/qbert" },
-      { label: "Pacman", href: "/pacman" },
-      { label: "Space Invaders", href: "/space-invaders" },
-      { label: "Minesweeper", href: "/minesweeper" },
-    ],
-  },
+const FALLBACK_NAV: NavItem[] = [
+  { id: "home", label: "Home", href: "/", external: false, children: [] },
+  { id: "news", label: "News", href: "/blog", external: false, children: [] },
+  { id: "shows", label: "Shows", href: "/shows", external: false, children: [] },
+  { id: "events", label: "Events", href: "/events", external: false, children: [] },
+  { id: "contact", label: "Contact", href: "/contact-us", external: false, children: [] },
 ];
 
-export default function Header() {
+export default function Header({ menuItems }: HeaderProps) {
+  const nav = menuItems && menuItems.length > 0 ? menuItems : FALLBACK_NAV;
   const [mobileOpen, setMobileOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
@@ -199,7 +137,7 @@ export default function Header() {
       >
         <div className="mx-auto flex max-w-[var(--content-wide)] items-center px-4 sm:px-6">
           <ul className="flex items-center gap-0">
-            {PRIMARY_NAV.map((item) => (
+            {nav.map((item) => (
               <DesktopNavItem key={item.label} item={item} pathname={pathname} />
             ))}
           </ul>
@@ -278,7 +216,7 @@ export default function Header() {
           </form>
 
           <ul className="flex flex-col px-4 py-2">
-            {PRIMARY_NAV.map((item) => (
+            {nav.map((item) => (
               <MobileNavItem key={item.label} item={item} pathname={pathname} onClose={() => setMobileOpen(false)} />
             ))}
           </ul>
