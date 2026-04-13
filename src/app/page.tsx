@@ -1,65 +1,363 @@
 import Image from "next/image";
+import FeaturedSlider from "@/components/ui/FeaturedSlider";
+import Sidebar from "@/components/layout/Sidebar";
+import AdSlot from "@/components/sidebar/AdSlot";
+import { getRecentPosts, getAllShows, getHomepageSlider, getAdGroup, stripHtml, wpImageUrl } from "@/lib/api";
+import type { WPPost, WPShow } from "@/types";
 
-export default function Home() {
+/* ============================================
+   Homepage — Blog / Editorial Layout
+
+   Classic radio station structure:
+   - Featured slider at top (full width)
+   - Two-column layout: main content + sidebar
+   - Main: blog posts grid, trending stories
+   - Sidebar: now playing, schedule, events, ads
+   ============================================ */
+
+export default async function Home() {
+  const [posts, shows, sliderSlides, bannerAds] = await Promise.all([
+    getRecentPosts(9),
+    getAllShows(),
+    getHomepageSlider(),
+    getAdGroup("home-page-group"),
+  ]);
+
+  const leadPost = posts[0] ?? null;
+  const gridPosts = posts.slice(1, 5);
+  const trendingPosts = posts.slice(1, 6);
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+    <div className="mx-auto max-w-[var(--content-wide)] px-4 sm:px-6">
+      {/* Two-column layout */}
+      <div className="flex flex-col gap-8 py-5 pb-12 lg:flex-row">
+        {/* ======= MAIN CONTENT ======= */}
+        <div className="min-w-0 flex-1">
+
+          {/* Featured Slider — inside main column */}
+          <div className="mb-6">
+            <FeaturedSlider slides={sliderSlides} />
+          </div>
+
+          {/* Ad — leaderboard banner */}
+          <div className="mt-8">
+            <AdSlot ads={bannerAds} label="Advertisement" />
+          </div>
+
+          {/* Latest News / Blog */}
+          <section className="mt-8">
+            <SectionHeader title="Latest News" href="/blog" />
+
+            {/* Lead story — large card */}
+            {leadPost && <LeadStory post={leadPost} />}
+
+            {/* Post grid — 2 columns */}
+            <div className="mt-5 grid gap-5 sm:grid-cols-2">
+              {gridPosts.map((post) => (
+                <PostCard key={post.id} post={post} />
+              ))}
+            </div>
+
+            {/* Load more */}
+            <div className="mt-6 text-center">
+              <a
+                href="/blog"
+                className="inline-flex items-center gap-2 rounded-full border px-6 py-2.5 text-sm font-semibold transition-colors hover:bg-black/[0.03]"
+                style={{ borderColor: "oklch(0% 0 0 / 0.12)" }}
+              >
+                More News &rarr;
+              </a>
+            </div>
+          </section>
+
+          {/* Trending Section */}
+          <section className="mt-10">
+            <SectionHeader title="Trending" />
+            <div className="space-y-0 divide-y" style={{ borderColor: "oklch(0% 0 0 / 0.06)" }}>
+              {trendingPosts.map((post, i) => (
+                <TrendingRow key={post.id} index={i + 1} post={post} />
+              ))}
+            </div>
+          </section>
+
+          {/* Ad — leaderboard banner */}
+          <div className="mt-8">
+            <AdSlot ads={bannerAds} label="Advertisement" />
+          </div>
+
+          {/* Shows Section */}
+          {shows.length > 0 && (
+            <section className="mt-10">
+              <SectionHeader title="Our DJs" href="/shows" />
+              <div className="grid gap-4 sm:grid-cols-3">
+                {shows.slice(0, 6).map((show) => (
+                  <ShowCard key={show.id} show={show} />
+                ))}
+              </div>
+            </section>
+          )}
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
+
+        {/* ======= SIDEBAR ======= */}
+        <Sidebar />
+      </div>
     </div>
   );
+}
+
+/* ============================================
+   Sub-components
+   ============================================ */
+
+function SectionHeader({
+  title,
+  href,
+}: {
+  title: string;
+  href?: string;
+}) {
+  return (
+    <div
+      className="mb-4 flex items-center justify-between border-b pb-3"
+      style={{ borderColor: "oklch(0% 0 0 / 0.08)" }}
+    >
+      <h2 className="font-[family-name:var(--font-display)] text-lg font-bold uppercase tracking-wide">
+        <span
+          className="mr-2 inline-block h-4 w-1 rounded-full"
+          style={{ background: "var(--color-primary)" }}
+        />
+        {title}
+      </h2>
+      {href && (
+        <a
+          href={href}
+          className="text-xs font-semibold transition-colors hover:underline"
+          style={{ color: "var(--color-primary)" }}
+        >
+          View All &rarr;
+        </a>
+      )}
+    </div>
+  );
+}
+
+function LeadStory({ post }: { post: WPPost }) {
+  const category = post.categories.nodes[0];
+  const imgUrl = wpImageUrl(post.featuredImage?.node.sourceUrl);
+
+  return (
+    <article
+      className="group overflow-hidden rounded-xl border transition-shadow hover:shadow-lg"
+      style={{ borderColor: "oklch(0% 0 0 / 0.06)" }}
+    >
+      {imgUrl ? (
+        <div className="relative aspect-[2/1] sm:aspect-[5/2] overflow-hidden">
+          <Image
+            src={imgUrl}
+            alt={post.featuredImage?.node.altText || post.title}
+            fill
+            className="object-cover transition-transform duration-300 group-hover:scale-[1.02]"
+            sizes="(max-width: 768px) 100vw, 700px"
+            priority
+          />
+        </div>
+      ) : (
+        <div
+          className="aspect-[2/1] sm:aspect-[5/2]"
+          style={{ background: "var(--color-surface-sunken)" }}
+        />
+      )}
+      <div className="p-5">
+        <div className="flex items-center gap-2">
+          {category && (
+            <span
+              className="rounded-full px-2.5 py-0.5 text-[10px] font-bold uppercase"
+              style={{
+                background: "oklch(60% 0.26 350 / 0.1)",
+                color: "var(--color-primary)",
+              }}
+            >
+              {category.name}
+            </span>
+          )}
+          <span
+            className="text-xs"
+            style={{ color: "var(--color-text-muted)" }}
+          >
+            {formatDate(post.date)}
+          </span>
+        </div>
+        <h3
+          className="mt-2 font-[family-name:var(--font-display)] font-bold leading-tight tracking-tight"
+          style={{ fontSize: "var(--text-xl)" }}
+        >
+          <a href={`/blog/${post.slug}`} className="hover:underline">
+            {post.title}
+          </a>
+        </h3>
+        <p
+          className="mt-2 line-clamp-2 text-sm leading-relaxed"
+          style={{ color: "var(--color-text-secondary)" }}
+        >
+          {stripHtml(post.excerpt)}
+        </p>
+      </div>
+    </article>
+  );
+}
+
+function PostCard({ post }: { post: WPPost }) {
+  const category = post.categories.nodes[0];
+  const imgUrl = wpImageUrl(post.featuredImage?.node.sourceUrl);
+
+  return (
+    <article
+      className="group overflow-hidden rounded-xl border transition-shadow hover:shadow-md"
+      style={{ borderColor: "oklch(0% 0 0 / 0.06)" }}
+    >
+      {imgUrl ? (
+        <div className="relative aspect-[16/10] overflow-hidden">
+          <Image
+            src={imgUrl}
+            alt={post.featuredImage?.node.altText || post.title}
+            fill
+            className="object-cover transition-transform duration-300 group-hover:scale-[1.02]"
+            sizes="(max-width: 768px) 100vw, 340px"
+          />
+        </div>
+      ) : (
+        <div
+          className="aspect-[16/10]"
+          style={{ background: "var(--color-surface-sunken)" }}
+        />
+      )}
+      <div className="p-4">
+        <div className="flex items-center gap-2">
+          {category && (
+            <span
+              className="text-[10px] font-bold uppercase tracking-wider"
+              style={{ color: "var(--color-primary)" }}
+            >
+              {category.name}
+            </span>
+          )}
+          <span
+            className="text-[10px]"
+            style={{ color: "var(--color-text-muted)" }}
+          >
+            {formatDate(post.date)}
+          </span>
+        </div>
+        <h3 className="mt-1.5 font-[family-name:var(--font-display)] text-sm font-bold leading-tight tracking-tight">
+          <a href={`/blog/${post.slug}`} className="hover:underline">
+            {post.title}
+          </a>
+        </h3>
+        <p
+          className="mt-1 line-clamp-2 text-xs leading-relaxed"
+          style={{ color: "var(--color-text-secondary)" }}
+        >
+          {stripHtml(post.excerpt)}
+        </p>
+      </div>
+    </article>
+  );
+}
+
+function TrendingRow({ index, post }: { index: number; post: WPPost }) {
+  const category = post.categories.nodes[0];
+  const imgUrl = wpImageUrl(post.featuredImage?.node.sourceUrl);
+
+  return (
+    <article className="flex items-center gap-4 py-3 transition-colors hover:bg-black/[0.01]">
+      <span
+        className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg font-[family-name:var(--font-display)] text-sm font-bold"
+        style={{
+          background: "var(--color-surface-sunken)",
+          color: "var(--color-text-muted)",
+        }}
+      >
+        {String(index).padStart(2, "0")}
+      </span>
+      <div className="min-w-0 flex-1">
+        <div className="flex items-center gap-2">
+          {category && (
+            <span
+              className="text-[10px] font-bold uppercase tracking-wider"
+              style={{ color: "var(--color-primary)" }}
+            >
+              {category.name}
+            </span>
+          )}
+          <span
+            className="text-[10px]"
+            style={{ color: "var(--color-text-muted)" }}
+          >
+            {formatDate(post.date)}
+          </span>
+        </div>
+        <h3 className="truncate text-sm font-semibold">
+          <a href={`/blog/${post.slug}`} className="hover:underline">
+            {post.title}
+          </a>
+        </h3>
+      </div>
+      {imgUrl && (
+        <div className="relative hidden h-12 w-12 shrink-0 overflow-hidden rounded-lg sm:block">
+          <Image
+            src={imgUrl}
+            alt={post.title}
+            fill
+            className="object-cover"
+            sizes="48px"
+          />
+        </div>
+      )}
+    </article>
+  );
+}
+
+function ShowCard({ show }: { show: WPShow }) {
+  const imgUrl = wpImageUrl(show.showAvatar || show.featuredImage?.node.sourceUrl);
+
+  return (
+    <a
+      href={`/shows/${show.slug}`}
+      className="group block overflow-hidden rounded-xl border transition-shadow hover:shadow-md"
+      style={{ borderColor: "oklch(0% 0 0 / 0.06)" }}
+    >
+      {imgUrl ? (
+        <div className="relative aspect-square overflow-hidden">
+          <Image
+            src={imgUrl}
+            alt={show.title}
+            fill
+            className="object-cover transition-transform duration-300 group-hover:scale-[1.03]"
+            sizes="(max-width: 768px) 50vw, 220px"
+          />
+        </div>
+      ) : (
+        <div
+          className="aspect-square"
+          style={{ background: "oklch(92% 0.02 250 / 0.3)" }}
+        />
+      )}
+      <div className="p-3">
+        <h3 className="font-[family-name:var(--font-display)] text-sm font-bold tracking-tight">
+          {show.title}
+        </h3>
+      </div>
+    </a>
+  );
+}
+
+/* ---------- Utilities ---------- */
+
+function formatDate(dateStr: string): string {
+  const d = new Date(dateStr);
+  return d.toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  });
 }

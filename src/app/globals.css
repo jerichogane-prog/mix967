@@ -1,26 +1,354 @@
 @import "tailwindcss";
 
+/* ============================================
+   MIX 967 FM — Design Tokens
+   Direction: Bright / Energetic + Editorial
+   ============================================ */
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* --- Brand Colors (from logo) ---
+     Logo uses a pink-to-orange gradient:
+     Hot pink (#E91E8C ~) → Coral (#F26A4B ~) → Warm orange (#F5943B ~)
+     Text is pure black.
+  */
+
+  /* Primary: hot pink (left side of logo gradient) */
+  --color-primary: oklch(60% 0.26 350);       /* hot pink */
+  --color-primary-light: oklch(72% 0.2 350);
+  --color-primary-dark: oklch(48% 0.26 350);
+
+  /* Secondary: warm orange (right side of logo gradient) */
+  --color-secondary: oklch(72% 0.19 45);      /* warm orange */
+  --color-secondary-light: oklch(82% 0.14 45);
+  --color-secondary-dark: oklch(60% 0.19 45);
+
+  /* Accent: coral (midpoint of the gradient) */
+  --color-accent: oklch(66% 0.22 25);         /* coral-red midpoint */
+  --color-accent-light: oklch(78% 0.16 25);
+  --color-accent-dark: oklch(54% 0.22 25);
+
+  /* Brand gradient — the signature pink→orange sweep */
+  --gradient-brand: linear-gradient(135deg, oklch(60% 0.26 350), oklch(66% 0.22 25), oklch(72% 0.19 45));
+  --gradient-brand-horizontal: linear-gradient(90deg, oklch(60% 0.26 350), oklch(72% 0.19 45));
+
+  /* --- Surfaces --- */
+  --color-surface: oklch(98.5% 0.003 350);    /* near-white with warm tint */
+  --color-surface-raised: oklch(100% 0 0);    /* pure white cards */
+  --color-surface-sunken: oklch(95.5% 0.006 350);
+  --color-surface-overlay: oklch(15% 0.01 0 / 0.88);
+
+  /* --- Text --- */
+  --color-text: oklch(10% 0 0);               /* logo black */
+  --color-text-secondary: oklch(38% 0.01 0);
+  --color-text-muted: oklch(55% 0.005 0);
+  --color-text-inverse: oklch(99% 0 0);
+
+  /* --- Status --- */
+  --color-live: oklch(62% 0.26 25);           /* on-brand coral-red for LIVE */
+  --color-success: oklch(70% 0.2 145);
+  --color-warning: oklch(78% 0.16 65);
+  --color-error: oklch(55% 0.25 25);
+
+  /* --- Typography Scale (fluid) --- */
+  --text-xs: clamp(0.7rem, 0.65rem + 0.25vw, 0.75rem);
+  --text-sm: clamp(0.8rem, 0.75rem + 0.25vw, 0.875rem);
+  --text-base: clamp(0.95rem, 0.88rem + 0.35vw, 1.0625rem);
+  --text-lg: clamp(1.1rem, 1rem + 0.5vw, 1.25rem);
+  --text-xl: clamp(1.25rem, 1.1rem + 0.75vw, 1.5rem);
+  --text-2xl: clamp(1.5rem, 1.2rem + 1.5vw, 2rem);
+  --text-3xl: clamp(1.8rem, 1.3rem + 2.5vw, 2.75rem);
+  --text-4xl: clamp(2.2rem, 1.4rem + 4vw, 3.75rem);
+  --text-hero: clamp(2.8rem, 1.2rem + 7vw, 6rem);
+
+  /* --- Spacing Scale --- */
+  --space-xs: clamp(0.25rem, 0.2rem + 0.25vw, 0.5rem);
+  --space-sm: clamp(0.5rem, 0.4rem + 0.5vw, 0.75rem);
+  --space-md: clamp(0.75rem, 0.6rem + 0.75vw, 1.25rem);
+  --space-lg: clamp(1.25rem, 1rem + 1.25vw, 2rem);
+  --space-xl: clamp(2rem, 1.5rem + 2.5vw, 3.5rem);
+  --space-2xl: clamp(3rem, 2rem + 5vw, 6rem);
+  --space-section: clamp(4rem, 3rem + 5vw, 8rem);
+
+  /* --- Layout --- */
+  --content-width: 72rem;
+  --content-wide: 90rem;
+  --content-narrow: 48rem;
+  --header-height: 7rem; /* top row h-16 + nav ~2.75rem */
+
+  /* --- Radii --- */
+  --radius-sm: 0.375rem;
+  --radius-md: 0.625rem;
+  --radius-lg: 1rem;
+  --radius-xl: 1.5rem;
+  --radius-full: 9999px;
+
+  /* --- Shadows --- */
+  --shadow-sm: 0 1px 3px oklch(15% 0 0 / 0.06);
+  --shadow-md: 0 4px 12px oklch(15% 0 0 / 0.08);
+  --shadow-lg: 0 8px 30px oklch(15% 0 0 / 0.1);
+  --shadow-glow: 0 0 20px oklch(60% 0.26 350 / 0.35);
+
+  /* --- Motion --- */
+  --duration-fast: 120ms;
+  --duration-normal: 250ms;
+  --duration-slow: 500ms;
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-out-back: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease-spring: cubic-bezier(0.22, 1.15, 0.36, 1);
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-background: var(--color-surface);
+  --color-foreground: var(--color-text);
+  --font-sans: var(--font-display);
+  --font-mono: var(--font-mono-code);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+/* --- Base Styles --- */
+body {
+  background: var(--color-surface);
+  color: var(--color-text);
+}
+
+/* --- Reduced Motion --- */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+/* --- Selection --- */
+::selection {
+  background: oklch(60% 0.26 350 / 0.2);
+  color: var(--color-text);
+}
+
+/* --- Focus Ring --- */
+:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+/* --- Live Pulse Animation --- */
+@keyframes pulse-live {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+.animate-pulse-live {
+  animation: pulse-live 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+/* --- Scrollbar (subtle) --- */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: oklch(70% 0 0 / 0.3);
+  border-radius: var(--radius-full);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: oklch(50% 0 0 / 0.5);
+}
+
+/* ============================================
+   WordPress Content Prose Styles
+   Handles WP block editor output: figures,
+   embeds, galleries, empty paragraphs, etc.
+   ============================================ */
+
+.prose {
+  font-size: var(--text-base, 1rem);
+  line-height: 1.75;
+  color: var(--color-text-secondary);
+}
+
+.prose > * + * {
+  margin-top: 1.25em;
+}
+
+.prose h2 {
+  font-family: var(--font-display);
+  font-size: var(--text-xl, 1.25rem);
+  font-weight: 700;
+  line-height: 1.3;
+  color: var(--color-text);
+  margin-top: 2em;
+  margin-bottom: 0.5em;
+}
+
+.prose h3 {
+  font-family: var(--font-display);
+  font-size: var(--text-lg, 1.125rem);
+  font-weight: 700;
+  line-height: 1.4;
+  color: var(--color-text);
+  margin-top: 1.5em;
+  margin-bottom: 0.5em;
+}
+
+.prose p {
+  margin-top: 1.25em;
+  margin-bottom: 0;
+}
+
+/* Collapse empty paragraphs from WP */
+.prose p:empty,
+.prose p:has(> br:only-child) {
+  display: none;
+}
+
+.prose a {
+  color: var(--color-primary);
+  text-decoration: underline;
+  text-decoration-color: oklch(60% 0.26 350 / 0.3);
+  text-underline-offset: 2px;
+  transition: text-decoration-color 0.15s;
+}
+
+.prose a:hover {
+  text-decoration-color: var(--color-primary);
+}
+
+.prose strong, .prose b {
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.prose em, .prose i {
+  font-style: italic;
+}
+
+.prose ul {
+  list-style: disc;
+  padding-left: 1.5em;
+  margin-top: 1em;
+}
+
+.prose ol {
+  list-style: decimal;
+  padding-left: 1.5em;
+  margin-top: 1em;
+}
+
+.prose li {
+  margin-top: 0.5em;
+}
+
+.prose blockquote {
+  border-left: 3px solid var(--color-primary);
+  padding-left: 1em;
+  margin-top: 1.5em;
+  margin-bottom: 1.5em;
+  font-style: italic;
+  color: var(--color-text-muted);
+}
+
+/* WordPress images & figures */
+.prose img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 0.5rem;
+}
+
+.prose figure {
+  margin-top: 1.5em;
+  margin-bottom: 1.5em;
+}
+
+.prose figure img {
+  width: 100%;
+}
+
+.prose figcaption {
+  margin-top: 0.5em;
+  font-size: 0.85em;
+  color: var(--color-text-muted);
+  text-align: center;
+}
+
+/* WP alignment classes */
+.prose .aligncenter {
+  text-align: center;
+}
+
+.prose .alignleft {
+  float: left;
+  margin-right: 1.5em;
+  margin-bottom: 1em;
+  max-width: 50%;
+}
+
+.prose .alignright {
+  float: right;
+  margin-left: 1.5em;
+  margin-bottom: 1em;
+  max-width: 50%;
+}
+
+/* Clear floats */
+.prose::after {
+  content: "";
+  display: table;
+  clear: both;
+}
+
+/* WP video embeds */
+.prose .wp-block-embed,
+.prose iframe {
+  max-width: 100%;
+  margin-top: 1.5em;
+  margin-bottom: 1.5em;
+}
+
+.prose .wp-block-embed-youtube .wp-block-embed__wrapper,
+.prose .wp-block-embed .wp-block-embed__wrapper {
+  position: relative;
+  padding-bottom: 56.25%;
+  height: 0;
+}
+
+.prose .wp-block-embed-youtube .wp-block-embed__wrapper iframe,
+.prose .wp-block-embed .wp-block-embed__wrapper iframe {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+/* Tables from WP */
+.prose table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 1.5em;
+}
+
+.prose th, .prose td {
+  border: 1px solid oklch(0% 0 0 / 0.08);
+  padding: 0.5em 0.75em;
+  text-align: left;
+}
+
+.prose th {
+  font-weight: 600;
+  background: var(--color-surface-sunken);
+}
+
+/* Horizontal rule */
+.prose hr {
+  border: none;
+  border-top: 1px solid oklch(0% 0 0 / 0.08);
+  margin: 2em 0;
 }
