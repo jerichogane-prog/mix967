@@ -6,16 +6,21 @@ import type { NowPlaying } from "@/types";
 /* ============================================
    RadioPlayer — Persistent sticky player bar
 
-   Sits at the bottom of the viewport, persists
-   across page navigation. Handles:
-   - Audio playback via <audio> element
+   - Auto-plays on page load
+   - Single-instance across tabs via BroadcastChannel
+   - When a new tab plays, other tabs stop
    - ICY metadata polling via /api/now-playing
-   - Volume control
-   - Play/pause with LIVE indicator
    ============================================ */
 
 const STREAM_URL = process.env.NEXT_PUBLIC_STREAM_URL ?? "";
-const METADATA_POLL_INTERVAL = 15_000; // 15 seconds
+const METADATA_POLL_INTERVAL = 15_000;
+const CHANNEL_NAME = "mix967-radio-player";
+
+type ChannelMessage =
+  | { type: "PLAYING"; tabId: string }
+  | { type: "STOPPED"; tabId: string }
+  | { type: "PING" }
+  | { type: "PONG"; tabId: string };
 
 export default function RadioPlayer() {
   const audioRef = useRef<HTMLAudioElement>(null);
@@ -23,6 +28,129 @@ export default function RadioPlayer() {
   const [isLoading, setIsLoading] = useState(false);
   const [volume, setVolume] = useState(0.8);
   const [nowPlaying, setNowPlaying] = useState<NowPlaying | null>(null);
+
+  const tabIdRef = useRef(Math.random().toString(36).slice(2, 10));
+  const channelRef = useRef<BroadcastChannel | null>(null);
+  const autoPlayAttempted = useRef(false);
+
+  // Start playback
+  const startPlayback = useCallback(async () => {
+    const audio = audioRef.current;
+    if (!audio || !STREAM_URL) return;
+
+    setIsLoading(true);
+    audio.src = STREAM_URL;
+    try {
+      await audio.play();
+      setIsPlaying(true);
+      // Notify other tabs
+      channelRef.current?.postMessage({
+        type: "PLAYING",
+        tabId: tabIdRef.current,
+      } satisfies ChannelMessage);
+    } catch {
+      setIsPlaying(false);
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
+  // Stop playback
+  const stopPlayback = useCallback(() => {
+    const audio = audioRef.current;
+    if (!audio) return;
+    audio.pause();
+    audio.src = "";
+    setIsPlaying(false);
+  }, []);
+
+  // Toggle
+  const togglePlay = useCallback(async () => {
+    if (isPlaying) {
+      stopPlayback();
+      channelRef.current?.postMessage({
+        type: "STOPPED",
+        tabId: tabIdRef.current,
+      } satisfies ChannelMessage);
+    } else {
+      await startPlayback();
+    }
+  }, [isPlaying, startPlayback, stopPlayback]);
+
+  // BroadcastChannel setup — single-instance coordination
+  useEffect(() => {
+    if (typeof BroadcastChannel === "undefined") return;
+
+    const channel = new BroadcastChannel(CHANNEL_NAME);
+    channelRef.current = channel;
+
+    channel.onmessage = (event: MessageEvent<ChannelMessage>) => {
+      const msg = event.data;
+
+      switch (msg.type) {
+        case "PLAYING":
+          // Another tab started playing — stop this one
+          if (msg.tabId !== tabIdRef.current) {
+            stopPlayback();
+          }
+          break;
+
+        case "PING":
+          // Another tab is checking if anyone is playing
+          if (isPlaying) {
+            channel.postMessage({
+              type: "PONG",
+              tabId: tabIdRef.current,
+            } satisfies ChannelMessage);
+          }
+          break;
+      }
+    };
+
+    return () => {
+      channel.close();
+      channelRef.current = null;
+    };
+  }, [isPlaying, stopPlayback]);
+
+  // Auto-play on mount — check other tabs first
+  useEffect(() => {
+    if (autoPlayAttempted.current || !STREAM_URL) return;
+    autoPlayAttempted.current = true;
+
+    if (typeof BroadcastChannel === "undefined") {
+      // No BroadcastChannel support — just auto-play
+      startPlayback();
+      return;
+    }
+
+    // Ask other tabs if they're already playing
+    const checkChannel = new BroadcastChannel(CHANNEL_NAME);
+    let otherTabPlaying = false;
+
+    checkChannel.onmessage = (event: MessageEvent<ChannelMessage>) => {
+      if (event.data.type === "PONG") {
+        otherTabPlaying = true;
+      }
+    };
+
+    checkChannel.postMessage({ type: "PING" } satisfies ChannelMessage);
+
+    // Wait a short moment for responses, then decide
+    const timer = setTimeout(() => {
+      checkChannel.close();
+      if (!otherTabPlaying) {
+        startPlayback();
+      }
+    }, 200);
+
+    return () => {
+      clearTimeout(timer);
+      checkChannel.close();
+    };
+    // Only run once on mount
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // Fetch now-playing metadata
   const fetchMetadata = useCallback(async () => {
@@ -35,45 +163,22 @@ export default function RadioPlayer() {
         }
       }
     } catch {
-      // Silently fail — metadata is non-critical
+      /* non-critical */
     }
   }, []);
 
-  // Poll metadata on interval
   useEffect(() => {
     fetchMetadata();
     const interval = setInterval(fetchMetadata, METADATA_POLL_INTERVAL);
     return () => clearInterval(interval);
   }, [fetchMetadata]);
 
-  // Sync volume to audio element
+  // Sync volume
   useEffect(() => {
     if (audioRef.current) {
       audioRef.current.volume = volume;
     }
   }, [volume]);
-
-  const togglePlay = async () => {
-    const audio = audioRef.current;
-    if (!audio) return;
-
-    if (isPlaying) {
-      audio.pause();
-      audio.src = "";
-      setIsPlaying(false);
-    } else {
-      setIsLoading(true);
-      audio.src = STREAM_URL;
-      try {
-        await audio.play();
-        setIsPlaying(true);
-      } catch {
-        setIsPlaying(false);
-      } finally {
-        setIsLoading(false);
-      }
-    }
-  };
 
   return (
     <div
