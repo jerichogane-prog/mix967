@@ -48,16 +48,20 @@ export async function getRecentPosts(count = 6): Promise<WPPost[]> {
   return data?.posts.nodes ?? [];
 }
 
+const EMPTY_PAGE_INFO: WPPageInfo = { hasNextPage: false, hasPreviousPage: false, endCursor: null, startCursor: null };
+
 export async function getPaginatedPosts(
   perPage = 12,
   after: string | null = null
 ): Promise<{ posts: WPPost[]; pageInfo: WPPageInfo }> {
-  const data = await fetchGraphQL<PaginatedPostsResponse>(
+  const data = await fetchGraphQLSafe<PaginatedPostsResponse>(
     GET_POSTS_PAGINATED,
     { first: perPage, after },
     { revalidate: 60, tags: ["posts"] }
   );
-  return { posts: data.posts.nodes, pageInfo: data.posts.pageInfo };
+  return data
+    ? { posts: data.posts.nodes, pageInfo: data.posts.pageInfo }
+    : { posts: [], pageInfo: EMPTY_PAGE_INFO };
 }
 
 /**
@@ -78,7 +82,7 @@ export async function getPostsPage(
   let cursor: string | null = null;
   for (let i = 1; i < page; i++) {
     type SkipResult = { posts: { pageInfo: { endCursor: string | null; hasNextPage: boolean } } };
-    const skip: SkipResult = await fetchGraphQL<SkipResult>(
+    const skip: SkipResult | null = await fetchGraphQLSafe<SkipResult>(
       `query SkipPosts($first: Int!, $after: String) {
         posts(first: $first, after: $after, where: { status: PUBLISH, orderby: { field: DATE, order: DESC } }) {
           pageInfo { endCursor hasNextPage }
@@ -87,9 +91,12 @@ export async function getPostsPage(
       { first: perPage, after: cursor },
       { revalidate: 60, tags: ["posts"] }
     );
+    if (!skip) {
+      return { posts: [], pageInfo: EMPTY_PAGE_INFO, totalFetched: 0 };
+    }
     cursor = skip.posts.pageInfo.endCursor;
     if (!skip.posts.pageInfo.hasNextPage && i < page - 1) {
-      return { posts: [], pageInfo: { hasNextPage: false, hasPreviousPage: true, endCursor: null, startCursor: null }, totalFetched: 0 };
+      return { posts: [], pageInfo: EMPTY_PAGE_INFO, totalFetched: 0 };
     }
   }
 
@@ -98,12 +105,12 @@ export async function getPostsPage(
 }
 
 export async function searchPosts(query: string): Promise<WPPost[]> {
-  const data = await fetchGraphQL<PostsResponse>(
+  const data = await fetchGraphQLSafe<PostsResponse>(
     SEARCH_POSTS,
     { search: query, first: 20 },
     { revalidate: 0 }
   );
-  return data.posts.nodes;
+  return data?.posts.nodes ?? [];
 }
 
 export async function getPostCount(): Promise<number> {
