@@ -43,7 +43,7 @@ export async function getRecentPosts(count = 6): Promise<WPPost[]> {
   const data = await fetchGraphQLSafe<PostsResponse>(
     GET_RECENT_POSTS,
     { first: count },
-    { revalidate: 60, tags: ["posts"] }
+    { revalidate: 0 }
   );
   return data?.posts.nodes ?? [];
 }
@@ -57,7 +57,7 @@ export async function getPaginatedPosts(
   const data = await fetchGraphQLSafe<PaginatedPostsResponse>(
     GET_POSTS_PAGINATED,
     { first: perPage, after },
-    { revalidate: 60, tags: ["posts"] }
+    { revalidate: 0 }
   );
   return data
     ? { posts: data.posts.nodes, pageInfo: data.posts.pageInfo }
@@ -89,7 +89,7 @@ export async function getPostsPage(
         }
       }`,
       { first: perPage, after: cursor },
-      { revalidate: 60, tags: ["posts"] }
+      { revalidate: 0 }
     );
     if (!skip) {
       return { posts: [], pageInfo: EMPTY_PAGE_INFO, totalFetched: 0 };
@@ -117,7 +117,7 @@ export async function getPostCount(): Promise<number> {
   const data = await fetchGraphQLSafe<{ postCount: number }>(
     GET_POST_COUNT,
     {},
-    { revalidate: 300, tags: ["posts"] }
+    { revalidate: 0 }
   );
   return data?.postCount ?? 0;
 }
@@ -126,7 +126,7 @@ export async function getPostBySlug(slug: string): Promise<WPPost | null> {
   const data = await fetchGraphQLSafe<SinglePostResponse>(
     GET_POST_BY_SLUG,
     { slug },
-    { revalidate: 60, tags: ["posts"] }
+    { revalidate: 0 }
   );
   return data?.post ?? null;
 }
@@ -137,7 +137,7 @@ export async function getAllShows(): Promise<WPShow[]> {
   const data = await fetchGraphQLSafe<ShowsResponse>(
     GET_ALL_SHOWS,
     {},
-    { revalidate: 300, tags: ["shows"] }
+    { revalidate: 0 }
   );
   return data?.shows.nodes.filter((s) => s.showActive) ?? [];
 }
@@ -146,7 +146,7 @@ export async function getShowBySlug(slug: string): Promise<WPShow | null> {
   const data = await fetchGraphQLSafe<SingleShowResponse>(
     GET_SHOW_BY_SLUG,
     { slug },
-    { revalidate: 300, tags: ["shows"] }
+    { revalidate: 0 }
   );
   return data?.show ?? null;
 }
@@ -157,7 +157,7 @@ export async function getUpcomingEvents(count = 8): Promise<WPEvent[]> {
   const data = await fetchGraphQLSafe<EventsResponse>(
     GET_UPCOMING_EVENTS,
     { first: count },
-    { revalidate: 120, tags: ["events"] }
+    { revalidate: 0 }
   );
   return data?.events.nodes ?? [];
 }
@@ -166,7 +166,7 @@ export async function getEventBySlug(slug: string): Promise<WPEvent | null> {
   const data = await fetchGraphQLSafe<SingleEventResponse>(
     GET_EVENT_BY_SLUG,
     { slug },
-    { revalidate: 120, tags: ["events"] }
+    { revalidate: 0 }
   );
   return data?.event ?? null;
 }
@@ -177,7 +177,7 @@ export async function getPageBySlug(slug: string): Promise<WPPage | null> {
   const data = await fetchGraphQLSafe<PageResponse>(
     GET_PAGE_BY_SLUG,
     { slug },
-    { revalidate: 300, tags: ["pages"] }
+    { revalidate: 0 }
   );
   return data?.page ?? null;
 }
@@ -188,7 +188,7 @@ export async function getHomepageSlider(): Promise<SliderSlide[]> {
   const data = await fetchGraphQLSafe<SliderResponse>(
     GET_HOMEPAGE_SLIDER,
     {},
-    { revalidate: 300, tags: ["slider"] }
+    { revalidate: 0 }
   );
   return data?.homepageSlider ?? [];
 }
@@ -199,7 +199,7 @@ export async function getAdGroup(group: string): Promise<AdvancedAd[]> {
   const data = await fetchGraphQLSafe<AdGroupResponse>(
     GET_AD_GROUP,
     { group },
-    { revalidate: 120, tags: ["ads"] }
+    { revalidate: 0 }
   );
   return data?.adGroup ?? [];
 }

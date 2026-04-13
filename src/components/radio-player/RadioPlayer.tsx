@@ -26,7 +26,7 @@ export default function RadioPlayer() {
   const audioRef = useRef<HTMLAudioElement>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [volume, setVolume] = useState(0.8);
+  const [volume, setVolume] = useState(0.3);
   const [nowPlaying, setNowPlaying] = useState<NowPlaying | null>(null);
 
   const tabIdRef = useRef(Math.random().toString(36).slice(2, 10));
