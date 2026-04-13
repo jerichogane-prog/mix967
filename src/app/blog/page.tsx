@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Sidebar from "@/components/layout/Sidebar";
+import BannerAd from "@/components/ads/BannerAd";
 import { getPostsPage, getPostCount, searchPosts, stripHtml, wpImageUrl } from "@/lib/api";
 import type { WPPost } from "@/types";
 import type { Metadata } from "next";
@@ -61,6 +62,7 @@ export default async function BlogPage({ searchParams }: BlogPageProps) {
       <div className="flex flex-col gap-8 lg:flex-row">
         {/* Main content */}
         <div className="min-w-0 flex-1">
+          <BannerAd className="mb-6" />
           {posts.length === 0 ? (
             <p className="py-12 text-center text-sm" style={{ color: "var(--color-text-muted)" }}>
               {searchQuery ? `No results found for "${searchQuery}".` : "No posts found."}
@@ -77,6 +79,8 @@ export default async function BlogPage({ searchParams }: BlogPageProps) {
           {!searchQuery && totalPages > 1 && (
             <Pagination currentPage={currentPage} totalPages={totalPages} hasNextPage={hasNextPage} />
           )}
+
+          <BannerAd className="mt-8" />
         </div>
 
         {/* Sidebar */}

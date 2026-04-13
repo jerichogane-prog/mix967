@@ -1,6 +1,7 @@
 import Image from "next/image";
 import { notFound } from "next/navigation";
 import Sidebar from "@/components/layout/Sidebar";
+import BannerAd from "@/components/ads/BannerAd";
 import { getShowBySlug, stripHtml, wpImageUrl, sanitizeContent } from "@/lib/api";
 import type { ShowScheduleSlot } from "@/types";
 import type { Metadata } from "next";
@@ -45,6 +46,8 @@ export default async function ShowPage({ params }: ShowPageProps) {
           >
             &larr; All Shows
           </a>
+
+          <BannerAd className="mb-6" />
 
           {/* Header */}
           <div className="flex flex-col gap-5 sm:flex-row sm:items-center">
@@ -109,6 +112,8 @@ export default async function ShowPage({ params }: ShowPageProps) {
               }}
             />
           )}
+
+          <BannerAd className="mt-8" />
         </div>
 
         <Sidebar />

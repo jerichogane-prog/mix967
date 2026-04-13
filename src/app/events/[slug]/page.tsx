@@ -1,6 +1,7 @@
 import Image from "next/image";
 import { notFound } from "next/navigation";
 import Sidebar from "@/components/layout/Sidebar";
+import BannerAd from "@/components/ads/BannerAd";
 import { getEventBySlug, stripHtml, wpImageUrl, sanitizeContent } from "@/lib/api";
 import type { Metadata } from "next";
 
@@ -40,6 +41,8 @@ export default async function EventPage({ params }: EventPageProps) {
           >
             &larr; All Events
           </a>
+
+          <BannerAd className="mb-6" />
 
           {/* Title */}
           <h1
@@ -110,6 +113,8 @@ export default async function EventPage({ params }: EventPageProps) {
               }}
             />
           )}
+
+          <BannerAd className="mt-8" />
         </div>
 
         <Sidebar />

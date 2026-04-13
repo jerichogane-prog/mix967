@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Sidebar from "@/components/layout/Sidebar";
+import BannerAd from "@/components/ads/BannerAd";
 import { getAllShows, wpImageUrl } from "@/lib/api";
 import type { WPShow, ShowScheduleSlot } from "@/types";
 import type { Metadata } from "next";
@@ -23,11 +24,14 @@ export default async function ShowsPage() {
 
       <div className="flex flex-col gap-8 lg:flex-row">
         <div className="min-w-0 flex-1">
+          <BannerAd className="mb-6" />
           <div className="grid gap-6 sm:grid-cols-2">
             {shows.map((show) => (
               <ShowCard key={show.id} show={show} />
             ))}
           </div>
+
+          <BannerAd className="mt-8" />
         </div>
 
         <Sidebar />

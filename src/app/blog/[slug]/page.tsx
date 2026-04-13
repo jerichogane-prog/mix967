@@ -1,6 +1,7 @@
 import Image from "next/image";
 import { notFound } from "next/navigation";
 import Sidebar from "@/components/layout/Sidebar";
+import BannerAd from "@/components/ads/BannerAd";
 import { getPostBySlug, stripHtml, wpImageUrl, sanitizeContent } from "@/lib/api";
 import type { Metadata } from "next";
 
@@ -41,6 +42,8 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
           >
             &larr; Back to News
           </a>
+
+          <BannerAd className="mb-6" />
 
           {/* Meta */}
           <div className="flex items-center gap-3">
@@ -108,6 +111,8 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
               ),
             }}
           />
+
+          <BannerAd className="mt-8" />
         </article>
 
         {/* Sidebar */}

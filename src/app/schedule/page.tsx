@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Sidebar from "@/components/layout/Sidebar";
+import BannerAd from "@/components/ads/BannerAd";
 import { getAllShows, wpImageUrl } from "@/lib/api";
 import type { WPShow, ShowScheduleSlot } from "@/types";
 import type { Metadata } from "next";
@@ -26,6 +27,7 @@ export default async function SchedulePage() {
 
       <div className="flex flex-col gap-8 lg:flex-row">
         <div className="min-w-0 flex-1 space-y-6">
+          <BannerAd className="mb-6" />
           {DAYS.map((day) => {
             const daySlots = schedule.get(day);
             if (!daySlots || daySlots.length === 0) return null;
@@ -80,6 +82,8 @@ export default async function SchedulePage() {
               </section>
             );
           })}
+
+          <BannerAd className="mt-8" />
         </div>
 
         <Sidebar />
