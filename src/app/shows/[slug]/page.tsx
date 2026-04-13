@@ -2,7 +2,7 @@ import Image from "next/image";
 import { notFound } from "next/navigation";
 import Sidebar from "@/components/layout/Sidebar";
 import BannerAd from "@/components/ads/BannerAd";
-import { getShowBySlug, stripHtml, wpImageUrl, sanitizeShowContent } from "@/lib/api";
+import { getShowBySlug, stripHtml, wpImageUrl, sanitizeContent } from "@/lib/api";
 import type { ShowScheduleSlot } from "@/types";
 import type { Metadata } from "next";
 
@@ -116,7 +116,7 @@ export default async function ShowPage({ params }: ShowPageProps) {
             <div
               className="prose mt-8 max-w-none"
               dangerouslySetInnerHTML={{
-                __html: sanitizeShowContent(show.content, show.featuredImage?.node.sourceUrl, show.showAvatar),
+                __html: sanitizeContent(show.content, show.featuredImage?.node.sourceUrl),
               }}
             />
           )}
