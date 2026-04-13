@@ -44,3 +44,20 @@ export async function fetchGraphQL<T>(
 
   return json.data;
 }
+
+/**
+ * Same as fetchGraphQL but returns null on failure instead of throwing.
+ * Used for build-time fetches where WordPress may be unreachable.
+ */
+export async function fetchGraphQLSafe<T>(
+  query: string,
+  variables: Record<string, unknown> = {},
+  options: { revalidate?: number; tags?: string[] } = {}
+): Promise<T | null> {
+  try {
+    return await fetchGraphQL<T>(query, variables, options);
+  } catch (err) {
+    console.warn("[GraphQL] Fetch failed (non-fatal):", (err as Error).message);
+    return null;
+  }
+}

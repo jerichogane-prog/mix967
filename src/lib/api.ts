@@ -2,7 +2,7 @@
    Data Fetching — typed wrappers around GraphQL
    ============================================ */
 
-import { fetchGraphQL } from "./graphql/client";
+import { fetchGraphQL, fetchGraphQLSafe } from "./graphql/client";
 import {
   GET_RECENT_POSTS,
   GET_POSTS_PAGINATED,
@@ -40,12 +40,12 @@ import type {
 /* ---------- Posts ---------- */
 
 export async function getRecentPosts(count = 6): Promise<WPPost[]> {
-  const data = await fetchGraphQL<PostsResponse>(
+  const data = await fetchGraphQLSafe<PostsResponse>(
     GET_RECENT_POSTS,
     { first: count },
     { revalidate: 60, tags: ["posts"] }
   );
-  return data.posts.nodes;
+  return data?.posts.nodes ?? [];
 }
 
 export async function getPaginatedPosts(
@@ -107,94 +107,94 @@ export async function searchPosts(query: string): Promise<WPPost[]> {
 }
 
 export async function getPostCount(): Promise<number> {
-  const data = await fetchGraphQL<{ postCount: number }>(
+  const data = await fetchGraphQLSafe<{ postCount: number }>(
     GET_POST_COUNT,
     {},
     { revalidate: 300, tags: ["posts"] }
   );
-  return data.postCount;
+  return data?.postCount ?? 0;
 }
 
 export async function getPostBySlug(slug: string): Promise<WPPost | null> {
-  const data = await fetchGraphQL<SinglePostResponse>(
+  const data = await fetchGraphQLSafe<SinglePostResponse>(
     GET_POST_BY_SLUG,
     { slug },
     { revalidate: 60, tags: ["posts"] }
   );
-  return data.post ?? null;
+  return data?.post ?? null;
 }
 
 /* ---------- Shows ---------- */
 
 export async function getAllShows(): Promise<WPShow[]> {
-  const data = await fetchGraphQL<ShowsResponse>(
+  const data = await fetchGraphQLSafe<ShowsResponse>(
     GET_ALL_SHOWS,
     {},
     { revalidate: 300, tags: ["shows"] }
   );
-  return data.shows.nodes.filter((s) => s.showActive);
+  return data?.shows.nodes.filter((s) => s.showActive) ?? [];
 }
 
 export async function getShowBySlug(slug: string): Promise<WPShow | null> {
-  const data = await fetchGraphQL<SingleShowResponse>(
+  const data = await fetchGraphQLSafe<SingleShowResponse>(
     GET_SHOW_BY_SLUG,
     { slug },
     { revalidate: 300, tags: ["shows"] }
   );
-  return data.show ?? null;
+  return data?.show ?? null;
 }
 
 /* ---------- Events ---------- */
 
 export async function getUpcomingEvents(count = 8): Promise<WPEvent[]> {
-  const data = await fetchGraphQL<EventsResponse>(
+  const data = await fetchGraphQLSafe<EventsResponse>(
     GET_UPCOMING_EVENTS,
     { first: count },
     { revalidate: 120, tags: ["events"] }
   );
-  return data.events.nodes;
+  return data?.events.nodes ?? [];
 }
 
 export async function getEventBySlug(slug: string): Promise<WPEvent | null> {
-  const data = await fetchGraphQL<SingleEventResponse>(
+  const data = await fetchGraphQLSafe<SingleEventResponse>(
     GET_EVENT_BY_SLUG,
     { slug },
     { revalidate: 120, tags: ["events"] }
   );
-  return data.event ?? null;
+  return data?.event ?? null;
 }
 
 /* ---------- Pages ---------- */
 
 export async function getPageBySlug(slug: string): Promise<WPPage | null> {
-  const data = await fetchGraphQL<PageResponse>(
+  const data = await fetchGraphQLSafe<PageResponse>(
     GET_PAGE_BY_SLUG,
     { slug },
     { revalidate: 300, tags: ["pages"] }
   );
-  return data.page ?? null;
+  return data?.page ?? null;
 }
 
 /* ---------- Homepage Slider ---------- */
 
 export async function getHomepageSlider(): Promise<SliderSlide[]> {
-  const data = await fetchGraphQL<SliderResponse>(
+  const data = await fetchGraphQLSafe<SliderResponse>(
     GET_HOMEPAGE_SLIDER,
     {},
     { revalidate: 300, tags: ["slider"] }
   );
-  return data.homepageSlider ?? [];
+  return data?.homepageSlider ?? [];
 }
 
 /* ---------- Advanced Ads ---------- */
 
 export async function getAdGroup(group: string): Promise<AdvancedAd[]> {
-  const data = await fetchGraphQL<AdGroupResponse>(
+  const data = await fetchGraphQLSafe<AdGroupResponse>(
     GET_AD_GROUP,
     { group },
     { revalidate: 120, tags: ["ads"] }
   );
-  return data.adGroup ?? [];
+  return data?.adGroup ?? [];
 }
 
 /* ---------- Helpers ---------- */
