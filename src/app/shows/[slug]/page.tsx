@@ -1,4 +1,5 @@
 import Image from "next/image";
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import Sidebar from "@/components/layout/Sidebar";
 import BannerAd from "@/components/ads/BannerAd";
@@ -47,13 +48,13 @@ export default async function ShowPage({ params }: ShowPageProps) {
       <div className="flex flex-col gap-8 lg:flex-row">
         <div className="min-w-0 flex-1">
           {/* Back */}
-          <a
+          <Link
             href="/shows"
             className="mb-4 inline-flex items-center gap-1 text-sm font-semibold transition-colors hover:underline"
             style={{ color: "var(--color-primary)" }}
           >
             &larr; All Shows
-          </a>
+          </Link>
 
           <BannerAd className="mb-6" />
 

@@ -6,6 +6,7 @@
    ============================================ */
 
 import Image from "next/image";
+import Link from "next/link";
 import type { WPShow, ShowScheduleSlot } from "@/types";
 import { wpImageUrl } from "@/lib/api";
 
@@ -60,9 +61,9 @@ export default function UpcomingShowsWidget({ shows }: UpcomingShowsWidgetProps)
               )}
               <div className="min-w-0 flex-1">
                 <p className="truncate text-sm font-semibold">
-                  <a href={`/shows/${entry.showSlug}`} className="hover:underline">
+                  <Link href={`/shows/${entry.showSlug}`} className="hover:underline">
                     {entry.showTitle}
-                  </a>
+                  </Link>
                 </p>
                 <p
                   className="text-xs leading-snug"
@@ -79,13 +80,13 @@ export default function UpcomingShowsWidget({ shows }: UpcomingShowsWidgetProps)
         className="border-t px-4 py-2.5"
         style={{ borderColor: "oklch(0% 0 0 / 0.06)" }}
       >
-        <a
+        <Link
           href="/schedule"
           className="text-xs font-semibold transition-colors hover:underline"
           style={{ color: "var(--color-primary)" }}
         >
           Full Schedule &rarr;
-        </a>
+        </Link>
       </div>
     </div>
   );

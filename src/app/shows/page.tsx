@@ -1,4 +1,5 @@
 import Image from "next/image";
+import Link from "next/link";
 import Sidebar from "@/components/layout/Sidebar";
 import BannerAd from "@/components/ads/BannerAd";
 import { getAllShows, wpImageUrl } from "@/lib/api";
@@ -45,7 +46,7 @@ function ShowCard({ show }: { show: WPShow }) {
   const schedule = getScheduleSummary(show);
 
   return (
-    <a
+    <Link
       href={`/shows/${show.slug}`}
       className="group flex gap-4 overflow-hidden rounded-xl border p-4 transition-shadow hover:shadow-md"
       style={{ borderColor: "oklch(0% 0 0 / 0.06)" }}
@@ -78,7 +79,7 @@ function ShowCard({ show }: { show: WPShow }) {
           </p>
         )}
       </div>
-    </a>
+    </Link>
   );
 }
 

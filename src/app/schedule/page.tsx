@@ -1,4 +1,5 @@
 import Image from "next/image";
+import Link from "next/link";
 import Sidebar from "@/components/layout/Sidebar";
 import BannerAd from "@/components/ads/BannerAd";
 import { getAllShows, wpImageUrl } from "@/lib/api";
@@ -66,7 +67,7 @@ export default async function SchedulePage() {
                         )}
                         <div className="min-w-0 flex-1">
                           <p className="text-sm font-semibold">
-                            <a href={`/shows/${slot.showSlug}`} className="hover:underline">{slot.showTitle}</a>
+                            <Link href={`/shows/${slot.showSlug}`} className="hover:underline">{slot.showTitle}</Link>
                           </p>
                         </div>
                         <span

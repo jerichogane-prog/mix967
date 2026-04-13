@@ -236,7 +236,11 @@ function buildMenuTree(items: WPMenuItem[]): NavItem[] {
     let href = item.url || item.path || "#";
 
     // Rewrite WP internal URLs to Next.js routes
-    href = href.replace(wpDomain, "").replace(wpUrl, "");
+    // Strip domain, ensuring we always get a leading slash
+    href = href.replace(wpDomain, "").replace(wpUrl.replace(/\/$/, ""), "").replace(wpUrl, "");
+    if (href && !href.startsWith("/") && !href.startsWith("http") && href !== "#") {
+      href = "/" + href;
+    }
 
     // Fix known path patterns
     href = href.replace(/\/show\//, "/shows/");

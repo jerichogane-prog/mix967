@@ -1,4 +1,5 @@
 import Image from "next/image";
+import Link from "next/link";
 import FeaturedSlider from "@/components/ui/FeaturedSlider";
 import Sidebar from "@/components/layout/Sidebar";
 import AdSlot from "@/components/sidebar/AdSlot";
@@ -64,13 +65,13 @@ export default async function Home() {
 
             {/* Load more */}
             <div className="mt-6 text-center">
-              <a
+              <Link
                 href="/blog"
                 className="inline-flex items-center gap-2 rounded-full border px-6 py-2.5 text-sm font-semibold transition-colors hover:bg-black/[0.03]"
                 style={{ borderColor: "oklch(0% 0 0 / 0.12)" }}
               >
                 More News &rarr;
-              </a>
+              </Link>
             </div>
           </section>
 
@@ -195,9 +196,9 @@ function LeadStory({ post }: { post: WPPost }) {
           className="mt-2 font-[family-name:var(--font-display)] font-bold leading-tight tracking-tight"
           style={{ fontSize: "var(--text-xl)" }}
         >
-          <a href={`/blog/${post.slug}`} className="hover:underline">
+          <Link href={`/blog/${post.slug}`} className="hover:underline">
             {post.title}
-          </a>
+          </Link>
         </h3>
         <p
           className="mt-2 line-clamp-2 text-sm leading-relaxed"
@@ -253,9 +254,9 @@ function PostCard({ post }: { post: WPPost }) {
           </span>
         </div>
         <h3 className="mt-1.5 font-[family-name:var(--font-display)] text-sm font-bold leading-tight tracking-tight">
-          <a href={`/blog/${post.slug}`} className="hover:underline">
+          <Link href={`/blog/${post.slug}`} className="hover:underline">
             {post.title}
-          </a>
+          </Link>
         </h3>
         <p
           className="mt-1 line-clamp-2 text-xs leading-relaxed"
@@ -301,9 +302,9 @@ function TrendingRow({ index, post }: { index: number; post: WPPost }) {
           </span>
         </div>
         <h3 className="truncate text-sm font-semibold">
-          <a href={`/blog/${post.slug}`} className="hover:underline">
+          <Link href={`/blog/${post.slug}`} className="hover:underline">
             {post.title}
-          </a>
+          </Link>
         </h3>
       </div>
       {imgUrl && (
@@ -325,7 +326,7 @@ function ShowCard({ show }: { show: WPShow }) {
   const imgUrl = wpImageUrl(show.showAvatar || show.featuredImage?.node.sourceUrl);
 
   return (
-    <a
+    <Link
       href={`/shows/${show.slug}`}
       className="group block overflow-hidden rounded-xl border transition-shadow hover:shadow-md"
       style={{ borderColor: "oklch(0% 0 0 / 0.06)" }}
@@ -353,7 +354,7 @@ function ShowCard({ show }: { show: WPShow }) {
           {show.title}
         </h3>
       </div>
-    </a>
+    </Link>
   );
 }
 

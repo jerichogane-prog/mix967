@@ -1,4 +1,5 @@
 import Image from "next/image";
+import Link from "next/link";
 import Sidebar from "@/components/layout/Sidebar";
 import BannerAd from "@/components/ads/BannerAd";
 import { getAllShows, stripHtml, wpImageUrl } from "@/lib/api";
@@ -61,7 +62,7 @@ function CrewCard({ show }: { show: WPShow }) {
   const bio = show.excerpt ? stripHtml(show.excerpt) : null;
 
   return (
-    <a
+    <Link
       href={`/shows/${show.slug}`}
       className="group flex flex-col overflow-hidden rounded-xl border transition-shadow hover:shadow-md"
       style={{ borderColor: "oklch(0% 0 0 / 0.06)" }}
@@ -137,7 +138,7 @@ function CrewCard({ show }: { show: WPShow }) {
           </p>
         )}
       </div>
-    </a>
+    </Link>
   );
 }
 
