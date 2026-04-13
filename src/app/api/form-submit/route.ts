@@ -3,9 +3,9 @@ import { NextResponse } from "next/server";
 /* ============================================
    Form Submission Proxy — /api/form-submit
 
-   Accepts form submissions from the frontend,
-   forwards them to the Gravity Forms REST API
-   on the WordPress backend. Returns success/error.
+   Forwards form submissions to the custom
+   WordPress REST endpoint which uses GFAPI
+   to create Gravity Forms entries.
    ============================================ */
 
 const WP_URL = process.env.NEXT_PUBLIC_WORDPRESS_URL ?? "http://localhost:10003";
@@ -25,45 +25,42 @@ export async function POST(request: Request) {
       );
     }
 
-    // Build Gravity Forms input format: { input_1: "value", input_2: "value" }
-    const gfPayload: Record<string, string> = {};
-    for (const [key, value] of Object.entries(fields)) {
-      gfPayload[key] = value;
-    }
-
-    // Submit to Gravity Forms REST API
-    const gfUrl = `${WP_URL}/wp-json/gf/v2/forms/${formId}/submissions`;
-
-    const res = await fetch(gfUrl, {
+    // Forward to WordPress custom endpoint
+    const res = await fetch(`${WP_URL}/wp-json/mix967/v1/form-submit`, {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(gfPayload),
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ form_id: formId, fields }),
     });
 
-    if (res.ok) {
-      const data = await res.json();
+    const data = await res.json();
+
+    if (data.success) {
       return NextResponse.json({
         success: true,
-        confirmationMessage: data.confirmation_message ?? "Thank you for your submission!",
+        entryId: data.entry_id,
+        confirmationMessage: data.confirmation_message,
       });
     }
 
-    // If GF REST API isn't available, store locally as fallback
-    // For now, just accept the submission and confirm
-    const errorText = await res.text().catch(() => "");
-    console.warn(`[Form] GF API returned ${res.status}: ${errorText}`);
+    // Validation errors from Gravity Forms
+    if (data.validation_errors && data.validation_errors.length > 0) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: data.validation_errors.join(". "),
+        },
+        { status: 422 }
+      );
+    }
 
-    // Still return success to the user — we received their data
-    return NextResponse.json({
-      success: true,
-      confirmationMessage: "Thank you! Your submission has been received.",
-    });
+    return NextResponse.json(
+      { success: false, error: data.error || "Submission failed" },
+      { status: res.status }
+    );
   } catch (err) {
     console.error("[Form] Submission error:", err);
     return NextResponse.json(
-      { success: false, error: "Failed to submit form" },
+      { success: false, error: "Failed to submit form. Please try again." },
       { status: 500 }
     );
   }
