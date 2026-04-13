@@ -59,22 +59,22 @@ export default function Header({ menuItems }: HeaderProps) {
           borderColor: "oklch(0% 0 0 / 0.06)",
         }}
       >
-        <div className="mx-auto flex h-16 max-w-[var(--content-wide)] items-center justify-between px-4 sm:px-6 lg:h-20">
+        <div className="mx-auto flex h-20 max-w-[var(--content-wide)] items-center justify-between px-4 sm:px-6 lg:h-24">
           {/* Logo + Tagline */}
           <Link
             href="/"
-            className="flex items-center gap-3 transition-opacity hover:opacity-80"
+            className="flex items-center gap-4 transition-opacity hover:opacity-80"
           >
             <Image
               src="https://mix967fm.com/wp-content/uploads/2023/04/Logo@2x-768x285-1.png"
               alt="Mix 96.7 FM"
               width={768}
               height={285}
-              className="h-10 w-auto lg:h-14"
+              className="h-14 w-auto lg:h-[4.5rem]"
               priority
             />
             <span
-              className="hidden text-base font-bold leading-tight tracking-tight sm:block lg:text-xl"
+              className="hidden font-[family-name:var(--font-display)] text-lg font-bold leading-tight tracking-tight sm:block lg:text-2xl"
               style={{ color: "var(--color-text-secondary)" }}
             >
               The #1 Hit Music Station

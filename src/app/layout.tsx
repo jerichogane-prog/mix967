@@ -30,10 +30,42 @@ const mono = JetBrains_Mono({
 
 export const metadata: Metadata = {
   title: {
-    default: "Mix 967 FM",
-    template: "%s | Mix 967 FM",
+    default: "Mix 96.7 FM — Northeast Nevada's #1 Hit Music Station",
+    template: "%s | Mix 96.7 FM",
   },
-  description: "Your favorite radio station — live music, shows, and events.",
+  description:
+    "Mix 96.7 FM is Northeast Nevada's #1 Hit Music Station. Listen live to the best mix of today's hits, local shows, contests, events, and community news from Elko, Nevada.",
+  keywords: [
+    "Mix 96.7",
+    "Mix 967",
+    "KHIX",
+    "radio",
+    "Elko",
+    "Nevada",
+    "hit music",
+    "listen live",
+  ],
+  openGraph: {
+    type: "website",
+    siteName: "Mix 96.7 FM",
+    title: "Mix 96.7 FM — Northeast Nevada's #1 Hit Music Station",
+    description:
+      "Listen live to the best mix of today's hits, local shows, contests, and events.",
+    locale: "en_US",
+  },
+  twitter: {
+    card: "summary_large_image",
+    site: "@elkosmix967",
+  },
+  icons: {
+    icon: [
+      { url: "/favicon-32x32.jpg", sizes: "32x32", type: "image/jpeg" },
+      { url: "/favicon-192x192.jpg", sizes: "192x192", type: "image/jpeg" },
+    ],
+    apple: [
+      { url: "/apple-touch-icon.jpg", sizes: "180x180", type: "image/jpeg" },
+    ],
+  },
 };
 
 export default async function RootLayout({

@@ -73,7 +73,7 @@
   --content-width: 72rem;
   --content-wide: 90rem;
   --content-narrow: 48rem;
-  --header-height: 7rem; /* top row h-16 + nav ~2.75rem */
+  --header-height: 8.5rem; /* top row h-20/lg:h-24 + nav ~2.75rem */
 
   /* --- Radii --- */
   --radius-sm: 0.375rem;
