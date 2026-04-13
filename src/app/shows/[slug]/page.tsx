@@ -111,15 +111,19 @@ export default async function ShowPage({ params }: ShowPageProps) {
             </div>
           )}
 
-          {/* Content */}
-          {show.content && (
-            <div
-              className="prose mt-8 max-w-none"
-              dangerouslySetInnerHTML={{
-                __html: sanitizeContent(show.content, show.featuredImage?.node.sourceUrl),
-              }}
-            />
-          )}
+          {/* Content — extract only the biography from WP Radio Station plugin output */}
+          {show.content && (() => {
+            const bio = extractShowBio(show.content);
+            if (!bio) return null;
+            return (
+              <div
+                className="prose mt-8 max-w-none"
+                dangerouslySetInnerHTML={{
+                  __html: sanitizeContent(bio, show.featuredImage?.node.sourceUrl),
+                }}
+              />
+            );
+          })()}
 
           <BannerAd className="mt-8" />
         </div>
@@ -154,4 +158,26 @@ function formatSchedule(slots: ShowScheduleSlot[]): string {
 
 function fmtTime(h: string, m: string, mer: string): string {
   return m.padStart(2, "0") === "00" ? `${h}${mer.toUpperCase()}` : `${h}:${m.padStart(2, "0")}${mer.toUpperCase()}`;
+}
+
+/**
+ * Extract just the biography text from the Radio Station plugin's HTML output.
+ * The plugin wraps everything in a show-content div with avatar, schedule table,
+ * buttons, and JavaScript — we only want the description paragraphs.
+ */
+function extractShowBio(html: string): string | null {
+  // Try to extract from <div class="show-desc-content">...</div>
+  const descMatch = html.match(/<div[^>]*class="show-desc-content"[^>]*>([\s\S]*?)<\/div>/i);
+  if (descMatch) return descMatch[1].trim() || null;
+
+  // Fallback: try <div id="show-description"...>...</div>
+  const idMatch = html.match(/<div[^>]*id="show-description"[^>]*>([\s\S]*?)<\/div>/i);
+  if (idMatch) return idMatch[1].trim() || null;
+
+  // Last fallback: if content doesn't have the plugin wrapper at all, return as-is
+  if (!html.includes("show-content") && !html.includes("show-info")) {
+    return html;
+  }
+
+  return null;
 }
