@@ -1,7 +1,8 @@
 import Image from "next/image";
 import Sidebar from "@/components/layout/Sidebar";
 import BannerAd from "@/components/ads/BannerAd";
-import { getPostsPage, getPostCount, searchPosts, stripHtml, wpImageUrl } from "@/lib/api";
+import { getPostsPage, getPostCount, searchPosts, stripHtml } from "@/lib/api";
+import { getPostImage } from "@/lib/post-image";
 import type { WPPost } from "@/types";
 import type { Metadata } from "next";
 
@@ -94,26 +95,24 @@ export default async function BlogPage({ searchParams }: BlogPageProps) {
 
 function PostRow({ post }: { post: WPPost }) {
   const category = post.categories.nodes[0];
-  const imgUrl = wpImageUrl(post.featuredImage?.node.sourceUrl);
 
   return (
     <article
       className="group flex flex-col gap-4 border-b pb-6 sm:flex-row"
       style={{ borderColor: "oklch(0% 0 0 / 0.06)" }}
     >
-      {imgUrl && (
-        <a href={`/blog/${post.slug}`} className="shrink-0">
-          <div className="relative aspect-[16/10] w-full overflow-hidden rounded-lg sm:w-48">
-            <Image
-              src={imgUrl}
-              alt={post.featuredImage?.node.altText || post.title}
-              fill
-              className="object-cover transition-transform duration-300 group-hover:scale-[1.02]"
-              sizes="(max-width: 640px) 100vw, 192px"
-            />
-          </div>
-        </a>
-      )}
+      {/* Decorative duplicate of the title link — hidden from assistive tech */}
+      <a href={`/blog/${post.slug}`} className="shrink-0" aria-hidden="true" tabIndex={-1}>
+        <div className="relative aspect-[16/10] w-full overflow-hidden rounded-lg sm:w-48">
+          <Image
+            src={getPostImage(post.slug)}
+            alt=""
+            fill
+            className="object-cover transition-transform duration-300 group-hover:scale-[1.02]"
+            sizes="(max-width: 640px) 100vw, 192px"
+          />
+        </div>
+      </a>
       <div className="min-w-0 flex-1">
         <div className="flex items-center gap-2">
           {category && (

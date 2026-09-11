@@ -4,6 +4,7 @@ import FeaturedSlider from "@/components/ui/FeaturedSlider";
 import Sidebar from "@/components/layout/Sidebar";
 import AdSlot from "@/components/sidebar/AdSlot";
 import { getRecentPosts, getAllShows, getHomepageSlider, getAdGroup, stripHtml, wpImageUrl } from "@/lib/api";
+import { getPostImage } from "@/lib/post-image";
 import type { WPPost, WPShow } from "@/types";
 
 /* ============================================
@@ -168,30 +169,22 @@ function SectionHeader({
 
 function LeadStory({ post }: { post: WPPost }) {
   const category = post.categories.nodes[0];
-  const imgUrl = wpImageUrl(post.featuredImage?.node.sourceUrl);
 
   return (
     <article
       className="group overflow-hidden rounded-xl border transition-shadow hover:shadow-lg"
       style={{ borderColor: "oklch(0% 0 0 / 0.06)" }}
     >
-      {imgUrl ? (
-        <div className="relative aspect-[2/1] sm:aspect-[5/2] overflow-hidden">
-          <Image
-            src={imgUrl}
-            alt={post.featuredImage?.node.altText || post.title}
-            fill
-            className="object-cover transition-transform duration-300 group-hover:scale-[1.02]"
-            sizes="(max-width: 768px) 100vw, 700px"
-            priority
-          />
-        </div>
-      ) : (
-        <div
-          className="aspect-[2/1] sm:aspect-[5/2]"
-          style={{ background: "var(--color-surface-sunken)" }}
+      <div className="relative aspect-[2/1] sm:aspect-[5/2] overflow-hidden">
+        <Image
+          src={getPostImage(post.slug)}
+          alt=""
+          fill
+          className="object-cover transition-transform duration-300 group-hover:scale-[1.02]"
+          sizes="(max-width: 768px) 100vw, 700px"
+          priority
         />
-      )}
+      </div>
       <div className="p-5">
         <div className="flex items-center gap-2">
           {category && (
@@ -233,29 +226,21 @@ function LeadStory({ post }: { post: WPPost }) {
 
 function PostCard({ post }: { post: WPPost }) {
   const category = post.categories.nodes[0];
-  const imgUrl = wpImageUrl(post.featuredImage?.node.sourceUrl);
 
   return (
     <article
       className="group overflow-hidden rounded-xl border transition-shadow hover:shadow-md"
       style={{ borderColor: "oklch(0% 0 0 / 0.06)" }}
     >
-      {imgUrl ? (
-        <div className="relative aspect-[16/10] overflow-hidden">
-          <Image
-            src={imgUrl}
-            alt={post.featuredImage?.node.altText || post.title}
-            fill
-            className="object-cover transition-transform duration-300 group-hover:scale-[1.02]"
-            sizes="(max-width: 768px) 100vw, 340px"
-          />
-        </div>
-      ) : (
-        <div
-          className="aspect-[16/10]"
-          style={{ background: "var(--color-surface-sunken)" }}
+      <div className="relative aspect-[16/10] overflow-hidden">
+        <Image
+          src={getPostImage(post.slug)}
+          alt=""
+          fill
+          className="object-cover transition-transform duration-300 group-hover:scale-[1.02]"
+          sizes="(max-width: 768px) 100vw, 340px"
         />
-      )}
+      </div>
       <div className="p-4">
         <div className="flex items-center gap-2">
           {category && (
@@ -291,7 +276,6 @@ function PostCard({ post }: { post: WPPost }) {
 
 function TrendingRow({ index, post }: { index: number; post: WPPost }) {
   const category = post.categories.nodes[0];
-  const imgUrl = wpImageUrl(post.featuredImage?.node.sourceUrl);
 
   return (
     <article className="flex items-center gap-4 py-3 transition-colors hover:bg-black/[0.01]">
@@ -327,17 +311,6 @@ function TrendingRow({ index, post }: { index: number; post: WPPost }) {
           </Link>
         </h3>
       </div>
-      {imgUrl && (
-        <div className="relative hidden h-12 w-12 shrink-0 overflow-hidden rounded-lg sm:block">
-          <Image
-            src={imgUrl}
-            alt={post.title}
-            fill
-            className="object-cover"
-            sizes="48px"
-          />
-        </div>
-      )}
     </article>
   );
 }

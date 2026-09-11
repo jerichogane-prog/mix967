@@ -29,6 +29,7 @@ const mono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://mix967fm.com"),
   title: {
     default: "Mix 96.7 FM — Northeast Nevada's #1 Hit Music Station",
     template: "%s | Mix 96.7 FM",

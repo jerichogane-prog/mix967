@@ -2,7 +2,8 @@ import Image from "next/image";
 import { notFound } from "next/navigation";
 import Sidebar from "@/components/layout/Sidebar";
 import BannerAd from "@/components/ads/BannerAd";
-import { getPostBySlug, stripHtml, wpImageUrl, sanitizeContent } from "@/lib/api";
+import { getPostBySlug, stripHtml, sanitizeContent } from "@/lib/api";
+import { getPostImage, POST_IMAGE_ALT, stripContentImages } from "@/lib/post-image";
 import type { Metadata } from "next";
 
 interface BlogPostPageProps {
@@ -15,7 +16,7 @@ export async function generateMetadata({ params }: BlogPostPageProps): Promise<M
   if (!post) return { title: "Post Not Found" };
 
   const description = stripHtml(post.excerpt).slice(0, 160);
-  const ogImage = wpImageUrl(post.featuredImage?.node.sourceUrl);
+  const ogImage = { url: getPostImage(slug), width: 1200, height: 630, alt: POST_IMAGE_ALT };
 
   return {
     title: post.title,
@@ -26,13 +27,13 @@ export async function generateMetadata({ params }: BlogPostPageProps): Promise<M
       type: "article",
       publishedTime: post.date,
       authors: [post.author.node.name],
-      ...(ogImage ? { images: [{ url: ogImage }] } : {}),
+      images: [ogImage],
     },
     twitter: {
       card: "summary_large_image",
       title: post.title,
       description,
-      ...(ogImage ? { images: [ogImage] } : {}),
+      images: [ogImage],
     },
   };
 }
@@ -44,7 +45,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
   if (!post) notFound();
 
   const category = post.categories.nodes[0];
-  const imgUrl = wpImageUrl(post.featuredImage?.node.sourceUrl);
+  const imgUrl = getPostImage(slug);
 
   const articleJsonLd = {
     "@context": "https://schema.org",
@@ -58,7 +59,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
       name: "Mix 96.7 FM",
       logo: { "@type": "ImageObject", url: "https://mix967fm.com/wp-content/uploads/2023/04/Logo@2x-768x285-1.png" },
     },
-    ...(imgUrl ? { image: imgUrl } : {}),
+    image: `https://mix967fm.com${imgUrl}`,
     mainEntityOfPage: `https://mix967fm.com/blog/${slug}`,
   };
 
@@ -133,28 +134,23 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
             By {post.author.node.name}
           </p>
 
-          {/* Featured image */}
-          {imgUrl && (
-            <div className="relative mt-6 aspect-[2/1] overflow-hidden rounded-xl">
-              <Image
-                src={imgUrl}
-                alt={post.featuredImage?.node.altText || post.title}
-                fill
-                className="object-cover"
-                sizes="(max-width: 1024px) 100vw, 720px"
-                priority
-              />
-            </div>
-          )}
+          {/* Branded header image (celebrity photos can't be used) */}
+          <div className="relative mt-6 aspect-[2/1] overflow-hidden rounded-xl">
+            <Image
+              src={imgUrl}
+              alt=""
+              fill
+              className="object-cover"
+              sizes="(max-width: 1024px) 100vw, 720px"
+              priority
+            />
+          </div>
 
-          {/* Content */}
+          {/* Content — embedded photos stripped for the same reason */}
           <div
             className="prose mt-8 max-w-none"
             dangerouslySetInnerHTML={{
-              __html: sanitizeContent(
-                post.content ?? "",
-                post.featuredImage?.node.sourceUrl
-              ),
+              __html: sanitizeContent(stripContentImages(post.content ?? "")),
             }}
           />
 
