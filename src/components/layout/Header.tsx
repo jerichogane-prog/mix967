@@ -11,6 +11,7 @@ import { usePathname, useRouter } from "next/navigation";
    ============================================ */
 
 import { HeaderWeatherBadge } from "@/components/weather/WeatherWidget";
+import { requestRadioPlay } from "@/components/radio-player/radio-events";
 import type { NavItem } from "@/lib/api";
 
 const SOCIALS = [
@@ -155,6 +156,8 @@ export default function Header({ menuItems }: HeaderProps) {
 
             {/* Listen Live button */}
             <button
+              type="button"
+              onClick={requestRadioPlay}
               className="inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-bold transition-transform hover:scale-105 active:scale-95 sm:px-5"
               style={{
                 background: "var(--color-live)",

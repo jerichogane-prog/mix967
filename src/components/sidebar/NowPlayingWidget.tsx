@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import type { NowPlaying } from "@/types";
+import { requestRadioPlay } from "@/components/radio-player/radio-events";
 
 /* ============================================
    Now Playing Widget — sidebar card showing
@@ -75,16 +76,8 @@ export default function NowPlayingWidget() {
         </div>
 
         <button
-          onClick={() => {
-            // Trigger the global radio player's play button
-            const playerBtn = document.querySelector<HTMLButtonElement>(
-              "[aria-label='Play radio'], [aria-label='Pause radio']"
-            );
-            if (playerBtn) {
-              playerBtn.click();
-              playerBtn.scrollIntoView({ behavior: "smooth", block: "end" });
-            }
-          }}
+          type="button"
+          onClick={requestRadioPlay}
           className="mt-3 flex w-full items-center justify-center gap-2 rounded-lg py-2.5 text-sm font-bold transition-all hover:scale-[1.02] active:scale-[0.98]"
           style={{
             background: "oklch(100% 0 0 / 0.2)",

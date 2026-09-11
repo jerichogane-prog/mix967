@@ -2,19 +2,22 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { NowPlaying } from "@/types";
+import { RADIO_PLAY_EVENT } from "./radio-events";
 
 /* ============================================
    RadioPlayer — Persistent sticky player bar
 
-   - Auto-plays on page load
+   - Auto-plays on page load (when the browser allows it)
    - Single-instance across tabs via BroadcastChannel
    - When a new tab plays, other tabs stop
    - ICY metadata polling via /api/now-playing
+   - Other components start it via requestRadioPlay()
    ============================================ */
 
 const STREAM_URL = process.env.NEXT_PUBLIC_STREAM_URL ?? "";
 const METADATA_POLL_INTERVAL = 15_000;
 const CHANNEL_NAME = "mix967-radio-player";
+const STREAM_ERROR_MESSAGE = "Stream unavailable right now — please try again.";
 
 type ChannelMessage =
   | { type: "PLAYING"; tabId: string }
@@ -28,10 +31,21 @@ export default function RadioPlayer() {
   const [isLoading, setIsLoading] = useState(false);
   const [volume, setVolume] = useState(0.3);
   const [nowPlaying, setNowPlaying] = useState<NowPlaying | null>(null);
+  const [streamError, setStreamError] = useState<string | null>(null);
 
   const tabIdRef = useRef(Math.random().toString(36).slice(2, 10));
   const channelRef = useRef<BroadcastChannel | null>(null);
   const autoPlayAttempted = useRef(false);
+
+  // Detach the stream and close the connection without firing an
+  // "error" event (setting src = "" does fire one)
+  const releaseStream = useCallback(() => {
+    const audio = audioRef.current;
+    if (!audio) return;
+    audio.pause();
+    audio.removeAttribute("src");
+    audio.load();
+  }, []);
 
   // Start playback
   const startPlayback = useCallback(async () => {
@@ -39,6 +53,7 @@ export default function RadioPlayer() {
     if (!audio || !STREAM_URL) return;
 
     setIsLoading(true);
+    setStreamError(null);
     audio.src = STREAM_URL;
     try {
       await audio.play();
@@ -48,21 +63,33 @@ export default function RadioPlayer() {
         type: "PLAYING",
         tabId: tabIdRef.current,
       } satisfies ChannelMessage);
-    } catch {
+    } catch (err) {
+      const reason = err instanceof DOMException ? err.name : "";
+      // AbortError: a newer play/stop call superseded this one — leave it be
+      if (reason === "AbortError") return;
+      releaseStream();
       setIsPlaying(false);
+      // NotAllowedError: browser blocked autoplay — listener just presses play.
+      // Anything else (e.g. stream rejected the request) is shown to the user.
+      if (reason !== "NotAllowedError") setStreamError(STREAM_ERROR_MESSAGE);
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [releaseStream]);
 
   // Stop playback
   const stopPlayback = useCallback(() => {
-    const audio = audioRef.current;
-    if (!audio) return;
-    audio.pause();
-    audio.src = "";
+    releaseStream();
     setIsPlaying(false);
-  }, []);
+  }, [releaseStream]);
+
+  // Stream failures after playback started (e.g. connection dropped)
+  const handleAudioError = useCallback(() => {
+    if (!audioRef.current?.getAttribute("src")) return;
+    releaseStream();
+    setIsPlaying(false);
+    setStreamError(STREAM_ERROR_MESSAGE);
+  }, [releaseStream]);
 
   // Toggle
   const togglePlay = useCallback(async () => {
@@ -139,7 +166,8 @@ export default function RadioPlayer() {
     // Wait a short moment for responses, then decide
     const timer = setTimeout(() => {
       checkChannel.close();
-      if (!otherTabPlaying) {
+      // Skip if another tab is playing, or the listener already hit "Listen Live"
+      if (!otherTabPlaying && audioRef.current?.paused !== false) {
         startPlayback();
       }
     }, 200);
@@ -151,6 +179,17 @@ export default function RadioPlayer() {
     // Only run once on mount
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // Let other components (header "Listen Live", sidebar widget) start playback
+  useEffect(() => {
+    const handlePlayRequest = () => {
+      // Already playing or connecting — nothing to do
+      if (audioRef.current?.paused === false) return;
+      startPlayback();
+    };
+    window.addEventListener(RADIO_PLAY_EVENT, handlePlayRequest);
+    return () => window.removeEventListener(RADIO_PLAY_EVENT, handlePlayRequest);
+  }, [startPlayback]);
 
   // Fetch now-playing metadata
   const fetchMetadata = useCallback(async () => {
@@ -230,9 +269,14 @@ export default function RadioPlayer() {
           </div>
           <p
             className="truncate text-sm font-medium"
-            style={{ color: "var(--color-text-inverse)" }}
+            style={{
+              color: streamError
+                ? "var(--color-accent-light)"
+                : "var(--color-text-inverse)",
+            }}
+            aria-live="polite"
           >
-            {nowPlaying?.title || "Tune in to Mix 967 FM"}
+            {streamError || nowPlaying?.title || "Tune in to Mix 967 FM"}
           </p>
         </div>
 
@@ -254,7 +298,7 @@ export default function RadioPlayer() {
       </div>
 
       {/* Hidden audio element */}
-      <audio ref={audioRef} preload="none" />
+      <audio ref={audioRef} preload="none" onError={handleAudioError} />
     </div>
   );
 }
