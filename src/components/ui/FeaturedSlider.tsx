@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import type { SliderSlide } from "@/types";
 import { wpImageUrl } from "@/lib/api";
+import { toSitePath } from "@/lib/wordpress-config";
 
 /* ============================================
    Featured Slider — hero-width image slider
@@ -181,13 +182,13 @@ function SlideLink({
 }) {
   if (!href) return <>{children}</>;
 
-  // Rewrite internal WP links to Next.js routes
-  const finalHref = href
-    .replace(/https?:\/\/mix-967\.local/, "")
-    .replace(/\/show\//, "/shows/");
+  // Rewrite internal WP links (CMS, old domain, local dev) to Next.js routes
+  const finalHref = toSitePath(href).replace(/^\/show\//, "/shows/");
+  // Internal links stay in this tab even if the slide was set to open a new one
+  const opensNewTab = target === "_blank" && /^https?:\/\//i.test(finalHref);
 
   return (
-    <a href={finalHref} target={target === "_blank" ? "_blank" : undefined} rel={target === "_blank" ? "noopener noreferrer" : undefined}>
+    <a href={finalHref} target={opensNewTab ? "_blank" : undefined} rel={opensNewTab ? "noopener noreferrer" : undefined}>
       {children}
     </a>
   );

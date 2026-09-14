@@ -57,7 +57,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
     publisher: {
       "@type": "Organization",
       name: "Mix 96.7 FM",
-      logo: { "@type": "ImageObject", url: "https://mix967fm.com/wp-content/uploads/2023/04/Logo@2x-768x285-1.png" },
+      logo: { "@type": "ImageObject", url: "https://mix967fm.com/images/logo-mix967.png" },
     },
     image: `https://mix967fm.com${imgUrl}`,
     mainEntityOfPage: `https://mix967fm.com/blog/${slug}`,

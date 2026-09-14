@@ -2,9 +2,7 @@
    GraphQL Client — connects to WPGraphQL
    ============================================ */
 
-const GRAPHQL_ENDPOINT =
-  process.env.NEXT_PUBLIC_WORDPRESS_GRAPHQL_URL ??
-  "http://cms.mix967.fm/graphql";
+import { WORDPRESS_GRAPHQL_URL as GRAPHQL_ENDPOINT } from "../wordpress-config";
 
 interface GraphQLResponse<T> {
   data: T;

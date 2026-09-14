@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { WORDPRESS_URL as WP_URL } from "@/lib/wordpress-config";
 
 /* ============================================
    Form Submission Proxy — /api/form-submit
@@ -7,8 +8,6 @@ import { NextResponse } from "next/server";
    WordPress REST endpoint which uses GFAPI
    to create Gravity Forms entries.
    ============================================ */
-
-const WP_URL = process.env.NEXT_PUBLIC_WORDPRESS_URL ?? "http://localhost:10003";
 
 export async function POST(request: Request) {
   try {

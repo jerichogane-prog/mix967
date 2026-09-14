@@ -3,6 +3,7 @@
    ============================================ */
 
 import { fetchGraphQL, fetchGraphQLSafe } from "./graphql/client";
+import { WORDPRESS_URL, toSitePath } from "./wordpress-config";
 import {
   GET_RECENT_POSTS,
   GET_POSTS_PAGINATED,
@@ -229,15 +230,11 @@ export async function getMenu(slug: string): Promise<NavItem[]> {
 }
 
 function buildMenuTree(items: WPMenuItem[]): NavItem[] {
-  const wpUrl = process.env.NEXT_PUBLIC_WORDPRESS_URL ?? "http://localhost:10003";
-  const wpDomain = "http://mix-967.local";
-
   const toNavItem = (item: WPMenuItem): NavItem => {
-    let href = item.url || item.path || "#";
+    // Rewrite WP internal URLs (CMS, old domain, local dev) to Next.js routes
+    let href = toSitePath(item.url || item.path || "#");
 
-    // Rewrite WP internal URLs to Next.js routes
-    // Strip domain, ensuring we always get a leading slash
-    href = href.replace(wpDomain, "").replace(wpUrl.replace(/\/$/, ""), "").replace(wpUrl, "");
+    // Ensure relative WP paths always get a leading slash
     if (href && !href.startsWith("/") && !href.startsWith("http") && href !== "#") {
       href = "/" + href;
     }
@@ -252,7 +249,8 @@ function buildMenuTree(items: WPMenuItem[]): NavItem[] {
       href = "#";
     }
 
-    const isExternal = item.url?.startsWith("http") && !item.url.includes("mix-967.local") && !item.url.includes(wpUrl);
+    // Anything still absolute after rewriting points off-site
+    const isExternal = /^https?:\/\//i.test(href);
 
     return {
       id: item.id,
@@ -297,10 +295,10 @@ export function stripHtml(html: string): string {
     .trim();
 }
 
-/** Rewrite mix-967.local URLs to localhost:10003 for dev */
+/** Rewrite local-dev mix-967.local image URLs to the configured WordPress URL */
 export function wpImageUrl(url: string | undefined | null): string | null {
   if (!url) return null;
-  return url.replace("http://mix-967.local", process.env.NEXT_PUBLIC_WORDPRESS_URL ?? "http://localhost:10003");
+  return url.replace("http://mix-967.local", WORDPRESS_URL);
 }
 
 /**
@@ -316,9 +314,8 @@ export function sanitizeContent(
 ): string {
   let content = html;
 
-  // Rewrite all WP image URLs
-  const wpUrl = process.env.NEXT_PUBLIC_WORDPRESS_URL ?? "http://localhost:10003";
-  content = content.replace(/http:\/\/mix-967\.local/g, wpUrl);
+  // Rewrite local-dev WP image URLs
+  content = content.replace(/http:\/\/mix-967\.local/g, WORDPRESS_URL);
 
   // Remove the first <figure> if its image matches the featured image
   if (featuredImageUrl) {
@@ -343,10 +340,8 @@ export function sanitizeContent(
   content = content.replace(/<p>\s*<\/p>/g, "");
   content = content.replace(/<p>\s*<br\s*\/?>\s*<\/p>/g, "");
 
-  // Fix internal links: strip WP domains and rewrite show → /shows/
-  content = content.replace(/href="http:\/\/mix-967\.local/g, `href="`);
-  content = content.replace(/href="https?:\/\/mix967fm\.com/g, `href="`);
-  content = content.replace(new RegExp(`href="${wpUrl.replace(/\/$/, "")}`, "g"), `href="`);
+  // Fix internal links: strip WP domains (CMS, old domain, local dev) and rewrite show → /shows/
+  content = content.replace(/href="([^"]*)"/g, (_match, url: string) => `href="${toSitePath(url)}"`);
   content = content.replace(/href="\/show\//g, 'href="/shows/');
   // Catch relative links: href="show/slug" (no leading slash) → absolute /shows/slug
   content = content.replace(/href="show\//g, 'href="/shows/');

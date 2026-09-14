@@ -91,7 +91,7 @@ export default function Header({ menuItems }: HeaderProps) {
             className="flex items-center gap-4 transition-opacity hover:opacity-80"
           >
             <Image
-              src="https://mix967fm.com/wp-content/uploads/2023/04/Logo@2x-768x285-1.png"
+              src="/images/logo-mix967.png"
               alt="Mix 96.7 FM"
               width={768}
               height={285}

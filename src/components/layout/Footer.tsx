@@ -74,7 +74,7 @@ export default function Footer() {
             {/* Station logo */}
             <Link href="/" className="inline-block transition-opacity hover:opacity-80">
               <Image
-                src="https://mix967fm.com/wp-content/uploads/2023/04/Logo@2x-768x285-1.png"
+                src="/images/logo-mix967.png"
                 alt="Mix 96.7 FM"
                 width={768}
                 height={285}
@@ -207,7 +207,7 @@ export default function Footer() {
               className="mt-3 inline-block transition-opacity hover:opacity-80"
             >
               <Image
-                src="https://mix967fm.com/wp-content/uploads/2023/04/G1M-Logo-768x345.png"
+                src="/images/logo-global1media.png"
                 alt="Global One Media Inc."
                 width={768}
                 height={345}

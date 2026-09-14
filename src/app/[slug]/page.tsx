@@ -1,4 +1,4 @@
-import { notFound, redirect } from "next/navigation";
+import { notFound, permanentRedirect } from "next/navigation";
 import Sidebar from "@/components/layout/Sidebar";
 import BannerAd from "@/components/ads/BannerAd";
 import { getPageBySlug, getPostBySlug, sanitizeContent } from "@/lib/api";
@@ -40,7 +40,7 @@ export default async function WPPage({ params }: WPPageProps) {
   if (!page) {
     const post = await getPostBySlug(slug);
     if (post) {
-      redirect(`/blog/${slug}`);
+      permanentRedirect(`/blog/${slug}`);
     }
     notFound();
   }

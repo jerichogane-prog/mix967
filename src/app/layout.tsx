@@ -92,7 +92,7 @@ export default async function RootLayout({
               name: "Mix 96.7 FM",
               alternateName: "KHIX",
               url: "https://mix967fm.com",
-              logo: "https://mix967fm.com/wp-content/uploads/2023/04/Logo@2x-768x285-1.png",
+              logo: "https://mix967fm.com/images/logo-mix967.png",
               description:
                 "Northeast Nevada's #1 Hit Music Station. Broadcasting 24/7 with the best mix of today's hits.",
               telephone: "+17757771196",
